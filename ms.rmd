@@ -1,0 +1,117 @@
+---
+title: The Processing of American Indian/Alaska Native Children through non-Tribal
+  Child Welfare Systems
+author: "Frank Edwards"
+date: "12/12/2019"
+output: html_document
+---
+
+```{r include=F}
+rm(list=ls()); gc()
+library(tidyverse)
+source("lifetable.r")
+
+pop<-read_csv("./data/pop_aian_nat.csv")
+afcars<-read_csv("./data/afcars_subset.csv",
+                 col_types = cols(stfcid="c"))
+
+ncands<-read_csv("./data/ncands_subset.csv")
+
+ncands<-ncands %>% 
+  mutate(year = year(rptdt)) %>% 
+  filter(year>=2003)%>% 
+  filter(chage<18)
+
+### can't use FCID because of separate imputation
+```
+
+## OUTLINE
+
+this paper examines how american indian children are processed through us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by children of other racial and ethnic groups. 
+
+## What am i estimating
+
+1. Pr(investigation)
+2. Pr(substantiated|investigation)
+3. Pr(placement|substantiated), Pr(placement|investigation), Pr(placement)
+4. Pr(non-indian FC|placement)
+5. Pr(termination|placement)
+
+
+A portrait of system involvement for AI/AN kids:
+
+Lifetime risk of ever:
+being investigated
+being substantiated
+being placed
+being placed in non-native home
+being placed in long-term care (>1yr)
+being terminated
+
+## $Pr(\textsf{investigation})$
+
+Establish the probability that a child was ever investigated.
+
+```{r ncandstables.pop}
+ncands_first<-ncands %>% 
+  group_by(chid) %>% 
+  filter(rptdt==min(rptdt))
+
+ncands_first_nat<-ncands_first %>% 
+  group_by(chage, year) %>% 
+  summarise(var = n()) %>% 
+  rename(age = chage) %>% 
+  left_join(pop) %>% 
+  ungroup()
+
+### run lifetable by year
+
+investigation_tables<-list()
+years<-unique(ncands_first_nat$year)
+for(i in 1:length(years)){
+  investigation_tables[[i]]<-make_life_table(ncands_first_nat %>% 
+                  filter(year==years[i]))
+}
+
+investigation_tables<-bind_rows(investigation_tables)
+```
+
+Use chid to identify probability of ever foster care for those ever investigated. 
+
+Use CHID - match to AFCARS
+
+Get first FC placement - use ncands_first counts as denominator.
+
+could also do matching based on ID
+
+```{r fctables.pop}
+### look at first fc placement
+afcars_first <- afcars %>% 
+  group_by(stfcid) %>% 
+  filter(age == min(age) & year == min(year)) %>% 
+  select(stfcid, age, year) %>% 
+  distinct()
+### this matches length(unique(afcars$stfcid))
+
+afcars_first_nat<-afcars_first %>% 
+  group_by(age, year) %>% 
+  summarise(var = n()) %>% 
+  left_join(pop) %>% 
+  ungroup()
+
+### run lifetable by year
+fc_tables<-list()
+years<-unique(afcars_first_nat$year)
+for(i in 1:length(years)){
+  fc_tables[[i]]<-make_life_table(afcars_first_nat %>% 
+                  filter(year==years[i]))
+}
+
+fc_tables_pop<-bind_rows(fc_tables)
+```
+
+```{r fctables.ncands}
+
+```
+
+Compare to lifetime risk of ever investigated
