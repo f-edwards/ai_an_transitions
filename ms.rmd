@@ -8,12 +8,16 @@ output: html_document
 
 ```{r include=F}
 rm(list=ls()); gc()
+### for libra
+setwd("~/Projects/ai_an_transitions")
 library(tidyverse)
+library(lubridate)
 source("lifetable.r")
 
 pop<-read_csv("./data/pop_aian_nat.csv")
 afcars<-read_csv("./data/afcars_subset.csv",
-                 col_types = cols(stfcid="c"))
+                 col_types = cols(stfcid="c")) %>% 
+  filter(age<18)
 
 ncands<-read_csv("./data/ncands_subset.csv")
 
@@ -23,6 +27,8 @@ ncands<-ncands %>%
   filter(chage<18)
 
 ### can't use FCID because of separate imputation
+
+afcars %>% group_by(age, year) %>% summarise(n=n())
 ```
 
 ## OUTLINE
@@ -48,7 +54,7 @@ being placed in non-native home
 being placed in long-term care (>1yr)
 being terminated
 
-## $Pr(\textsf{investigation})$
+## $P(\textsf{investigation})$
 
 Establish the probability that a child was ever investigated.
 
@@ -76,13 +82,62 @@ for(i in 1:length(years)){
 investigation_tables<-bind_rows(investigation_tables)
 ```
 
-Use chid to identify probability of ever foster care for those ever investigated. 
+## $P(substantiation)$
 
-Use CHID - match to AFCARS
+```{r fctables.ncands}
+ncands_first<-ncands %>% 
+  filter(rptvictim==1) %>% 
+  group_by(chid) %>% 
+  filter(rptdt==min(rptdt))
 
-Get first FC placement - use ncands_first counts as denominator.
+ncands_first_subst_nat<-ncands_first %>% 
+  group_by(chage, year) %>% 
+  summarise(var = n()) %>% 
+  rename(age = chage) %>% 
+  left_join(pop) %>% 
+  ungroup()
 
-could also do matching based on ID
+### run lifetable by year
+
+subst_tables<-list()
+years<-unique(ncands_first_subst_nat$year)
+for(i in 1:length(years)){
+  subst_tables[[i]]<-make_life_table(ncands_first_subst_nat %>% 
+                  filter(year==years[i]))
+}
+
+subst_tables<-bind_rows(subst_tables)
+```
+
+## $P(subst|inv)$
+
+of all investigated, how many are ever substantiated?
+
+from lifetables:
+
+Because $P(inv|subst)=1$, and we've converted population incidence into annual age-adjusted probability, the ratio of events is the conditional probability
+
+\[P(subst|inv) = \frac{d_{subst}}{d_{inv}}\]
+
+```{r}
+
+make_conditionals<-function(num, denom){
+  out<-num %>% 
+  select(age, year, d) %>% 
+  rename(d_num = d) %>% 
+  left_join(denom %>% 
+              select(age, year, d) %>% 
+              rename(d_denom = d)) %>% 
+  group_by(year) %>% 
+  summarise(q = sum(d_num)/sum(d_denom))
+  return(out)
+}
+
+sub_inv<-make_conditionals(subst_tables, investigation_tables)
+
+```
+
+## $P(FC)$ using AFCARS
 
 ```{r fctables.pop}
 ### look at first fc placement
@@ -107,11 +162,64 @@ for(i in 1:length(years)){
                   filter(year==years[i]))
 }
 
-fc_tables_pop<-bind_rows(fc_tables)
+fc_tables<-bind_rows(fc_tables)
 ```
 
-```{r fctables.ncands}
+## $P(FC)$ using NCANDS
 
+```{r}
+### look at first fc placement
+ncands_first_fc <- ncands %>% 
+  filter(!(is.na(afcarsid))) %>% 
+  group_by(chid) %>% 
+  filter(rptdt==min(rptdt)) %>% 
+  select(chid, afcarsid, chage, year) %>% 
+  ungroup() %>% 
+  distinct()
+### this matches length(unique(afcars$stfcid))
+
+ncands_fc_nat<-ncands_first_fc %>% 
+  rename(age = chage) %>% 
+  group_by(age, year) %>% 
+  summarise(var = n()) %>% 
+  left_join(pop) %>% 
+  ungroup()
+
+### run lifetable by year
+fc_tables<-list()
+years<-unique(afcars_first_nat$year)
+for(i in 1:length(years)){
+  fc_tables[[i]]<-make_life_table(afcars_first_nat %>% 
+                  filter(year==years[i]))
+}
+
+fc_tables<-bind_rows(fc_tables)
 ```
+
+## $P(FC|inv)$
+
+```{r}
+fc_inv<-make_conditionals(fc_tables, investigation_tables)
+fc_sub<-make_conditionals(fc_tables, subst_tables)
+```
+
+
 
 Compare to lifetime risk of ever investigated
+
+CONDITIONALS ONLY WORK FROM SAME DATA - CANT ASSUME THAT p(b|a)=1 otherwise
+
+need to go back to original afcars - rely on imputed ncands to get uncertainty, link to afcars by id, check year for investigation incident, maybe +/-1 yr for lags in placement starts
+
+want to use the proportions to obtain information about probability. perhaps use a model to populate uncertainty? or construct CI from data - either way should be ok
+
+CONFIRM THAT THEIR IS ONLY ONE FCID PER CHID
+
+```{r}
+
+temp<-ncands %>% 
+  group_by(chid) %>% 
+  summarise(n_fc=n_distinct(afcarsid))
+
+```
+
