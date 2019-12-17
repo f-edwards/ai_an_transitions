@@ -219,7 +219,7 @@ CONFIRM THAT THEIR IS ONLY ONE FCID PER CHID
 
 temp<-ncands %>% 
   group_by(chid) %>% 
-  summarise(n_fc=n_distinct(afcarsid))
+  summarise(n_fc=n_distinct(paste(staterr, afcarsid, sep="")))
 
 ```
 
