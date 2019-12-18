@@ -8,34 +8,34 @@ output: html_document
 
 ```{r include=F}
 rm(list=ls()); gc()
-### for libra
-setwd("~/Projects/ai_an_transitions")
 library(tidyverse)
-library(lubridate)
 source("lifetable.r")
 
 pop<-read_csv("./data/pop_aian_nat.csv")
 afcars<-read_csv("./data/afcars_subset.csv",
-                 col_types = cols(stfcid="c")) %>% 
-  filter(age<18)
+                 col_types = cols(stfcid="c")) 
+
+afcars_all<-read_csv("./data/afcars_id_xwalk.csv",
+                     col_types = cols(stfcid="c"))
 
 ncands<-read_csv("./data/ncands_subset.csv")
 
-ncands<-ncands %>% 
-  mutate(year = year(rptdt)) %>% 
-  filter(year>=2003)%>% 
-  filter(chage<18)
+xwalk<-ncands_xwalk %>% 
+  left_join(afcars_all) %>% 
+  filter(!(is.na(fy))) %>% 
+  select(stfcid, rptdt, fy) %>% 
+  rename(fc_year = fy)
 
-### can't use FCID because of separate imputation
-
-afcars %>% group_by(age, year) %>% summarise(n=n())
 ```
+
 
 ## OUTLINE
 
-this paper examines how american indian children are processed through us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by children of other racial and ethnic groups. 
+This report examines how american indian children are processed through us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
 
-## What am i estimating
+I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster placement, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
+
+## What am I estimating
 
 1. Pr(investigation)
 2. Pr(substantiated|investigation)
@@ -60,8 +60,12 @@ Establish the probability that a child was ever investigated.
 
 ```{r ncandstables.pop}
 ncands_first<-ncands %>% 
+  select(.imp, chid, chage, rptdt) %>% 
   group_by(chid) %>% 
-  filter(rptdt==min(rptdt))
+  filter(rptdt==min(rptdt)) %>% 
+  distinct() %>% 
+  ungroup() %>% 
+  mutate(year = year(rptdt))
 
 ncands_first_nat<-ncands_first %>% 
   group_by(chage, year) %>% 
@@ -80,6 +84,15 @@ for(i in 1:length(years)){
 }
 
 investigation_tables<-bind_rows(investigation_tables)
+
+investigation_tables %>% 
+  filter(age==17) %>% 
+  ggplot(aes(x=year, y = c)) +
+  geom_line()
+
+### way lower rates in 17
+### check total case counts
+### counts are low, probably some non-reporting states, removing for now
 ```
 
 ## $P(substantiation)$
@@ -196,12 +209,87 @@ for(i in 1:length(years)){
 fc_tables<-bind_rows(fc_tables)
 ```
 
+
+## $P(entered, investigation)$ using ncands
+```{r fctables.ncands}
+ncands_fc_first<-ncands %>% 
+  filter(ever_entered==T) %>% 
+  group_by(stfcid) %>% 
+  filter(chage==min(chage)) %>% 
+  ungroup() %>% 
+  select(stfcid, year, chage) %>% 
+  distinct()
+
+ncands_fc_nat<-ncands_fc_first %>% 
+  group_by(year, chage) %>% 
+  summarise(var = n()) %>% 
+  rename(age = chage) %>% 
+  left_join(pop) %>% 
+  ungroup()
+
+### run lifetable by year
+ncands_fc_tables<-list()
+years<-unique(ncands_fc_nat$year)
+for(i in 1:length(years)){
+  ncands_fc_tables[[i]]<-make_life_table(ncands_fc_nat %>% 
+                  filter(year==years[i]))
+}
+
+ncands_fc_tables<-bind_rows(ncands_fc_tables)
+```
+
+## $P(investigation , entered)$ using afcars
+
+```{r}
+### among all entries, match on investigation
+### question is afcars or ncands on left for join
+### likely assymetry
+### need first inv date in ncands_xwalk
+### to ensure I have inv prior to fc
+### to obtain P(inv,entered) where entered occurs after inv
+
+afcars_inv<-afcars_first %>% 
+  left_join(ncands_xwalk %>% 
+              select(stfcid, rptdt) %>% 
+              mutate(ncands_inv = T))
+
+afcars_inv<-afcars_inv %>% 
+  ungroup() %>% 
+  mutate(rpt_year = year(rptdt)) %>% 
+  filter(!(is.na(ncands_inv))) 
+
+## remove when year(rptdt)>year
+
+afcars_inv<-afcars_inv %>% 
+  filter(year>=rpt_year)
+
+
+
+```
+
+
+RECALL THAT
+
+\[P(A|B) = \frac{P(A,B)}{P(B)}\]
+
+ALSO, BAYES THEOREM
+
+\[P(B|A) = \frac{P(A|B)P(B)}{P(A)}\]
+
+for $A=FC$ and $B=investigation$, we wish to obtain $P(A|B)$. We obtain differing measurements of $P(A,B)$ from two datasets. I'll calculate each and compare. 
+
 ## $P(FC|inv)$
 
 ```{r}
 fc_inv<-make_conditionals(fc_tables, investigation_tables)
 fc_sub<-make_conditionals(fc_tables, subst_tables)
+fc_ncands_inv<-make_conditionals(ncands_fc_tables, 
+                                 investigation_tables)
+fc_ncands_subst<-make_conditionals(ncands_fc_tables, 
+                                 subst_tables)
 ```
+
+NEXT: compare these to raw rates, 
 
 
 
@@ -213,13 +301,4 @@ need to go back to original afcars - rely on imputed ncands to get uncertainty, 
 
 want to use the proportions to obtain information about probability. perhaps use a model to populate uncertainty? or construct CI from data - either way should be ok
 
-CONFIRM THAT THEIR IS ONLY ONE FCID PER CHID
-
-```{r}
-
-temp<-ncands %>% 
-  group_by(chid) %>% 
-  summarise(n_fc=n_distinct(paste(staterr, afcarsid, sep="")))
-
-```
 
