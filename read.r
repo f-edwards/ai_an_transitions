@@ -25,8 +25,19 @@ afcars<-read_csv("./data/afcars_imputed_all_cases.csv",
 
 ncands<-read_csv("./data/ncands_imputed.csv")
 ncands_xwalk<-read_csv("./data/ncands_xwalk.csv")
+
+library(maps)
+data(state.fips)
+state.fips<-state.fips %>% 
+  select(fips, abb) %>% 
+  distinct() %>% 
+  rename(staterr = abb)
+
+### attach stfcid
 ncands<-ncands %>% 
   left_join(ncands_xwalk)
+
+afcars_xwalk<-read_csv("./data/afcars_xwalk.csv")
 
 pop_aian<-pop %>% 
   filter(race_ethn=="AI/AN") %>% 
