@@ -31,30 +31,34 @@ xwalk<-ncands_xwalk %>%
 
 ## OUTLINE
 
-This report examines how american indian children are processed through us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
+This report examines how American Indian and Alaska Native children are processed through US child welfare systems. It explores the likelihood that American Indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
 
-I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster placement, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
+I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster care settings, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
 
-## What am I estimating
+This report pays particular attention to the probability of particular case processing decisions for AI/AN children, conditional on prior decision points. In doing so, we can begin to zoom-in on whether inequalities for AI/AN children emerge at particular decision points. The first component of the report provides national estimates of the following probabilities
 
-1. Pr(investigation)
-2. Pr(substantiated|investigation)
-3. Pr(placement|substantiated), Pr(placement|investigation), Pr(placement)
-4. Pr(non-indian FC|placement)
-5. Pr(termination|placement)
+1. $Pr(investigation)$
+2. $Pr(substantiated|investigation)$
+3. $Pr(placement)$
+3. $Pr(placement|investigation)$
+4. $Pr(placement|substantiation)$
+4. $Pr(\textsf{ICWA non-compliant placement}|placement)$
+4. $Pr(\textsf{long-term placement}|placement)$
+5. $Pr(termination|placement)$
+
+In doing so, this report provides a portrait of child-welfare system involvement for American Indian/Alaska Native children at the national level. Future versions of this report will detail sub-national variation. Sub-national estimates can be coupled with relevant system-level or child-level data to help evaluate which features of places are associated with investigation, substantiation, placement, and termination decisions for AI/AN children and families.
+
+In each section, I first explore how risk has shifted over time with an exploration of national trends in lifetime risk between 2003 and 2016. Next, I provide detailed estimates of risk for the 2012 - 2016 period with an emphasis on both lifetime and age-specific risks.
+
+In contrast to per capita event rates, life table estimates allow us to simulate the incidence of an event over the course of a child's life. These estimates adjust for variable age-specific risk to provide a more comprehensive single estimate of event incidence in the population. 
+
+## Investigations
+
+What proportion of AI/AN children are likely to experience a child welfare system investigation during the course of their childhood? I examine the child-level probability of ever experiencing an investigation by examining the proportion of children in each year of the data that experience their first maltreatment investigation, then using these numbers to construct period life tables, first as annual tables, and second as a grouped 2012 - 2016 table (which stabilizes trends driven by small age-specific event counts).
 
 
-A portrait of system involvement for AI/AN kids:
 
-Lifetime risk of ever:
-being investigated
-being substantiated
-being placed
-being placed in non-native home
-being placed in long-term care (>1yr)
-being terminated
-
-## $P(\textsf{investigation})$
+$P(\textsf{investigation})$
 
 Establish the probability that a child was ever investigated.
 
@@ -94,6 +98,8 @@ investigation_tables %>%
 ### check total case counts
 ### counts are low, probably some non-reporting states, removing for now
 ```
+
+VISUALIZE investigation tables
 
 ## $P(substantiation)$
 
