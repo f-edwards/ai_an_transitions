@@ -9,25 +9,20 @@ output: html_document
 ```{r include=F}
 rm(list=ls()); gc()
 library(tidyverse)
+library(lubridate)
 source("lifetable.r")
 
-pop<-read_csv("./data/pop_aian_nat.csv")
+pop<-read_csv("./data/pop_nat.csv")
 afcars<-read_csv("./data/afcars_subset.csv",
                  col_types = cols(stfcid="c")) 
 
-afcars_all<-read_csv("./data/afcars_id_xwalk.csv",
-                     col_types = cols(stfcid="c"))
-
 ncands<-read_csv("./data/ncands_subset.csv")
 
-xwalk<-ncands_xwalk %>% 
-  left_join(afcars_all) %>% 
-  filter(!(is.na(fy))) %>% 
-  select(stfcid, rptdt, fy) %>% 
-  rename(fc_year = fy)
+
+
+xwalk<-read_csv("./data/xwalk_merged.csv")
 
 ```
-
 
 ## OUTLINE
 
@@ -59,20 +54,22 @@ being terminated
 Establish the probability that a child was ever investigated.
 
 ```{r ncandstables.pop}
+### identify first report
 ncands_first<-ncands %>% 
-  select(.imp, chid, chage, rptdt) %>% 
-  group_by(chid) %>% 
+  select(.imp, race_ethn, stfcid, chage, rptdt) %>% 
+  group_by(stfcid) %>% 
   filter(rptdt==min(rptdt)) %>% 
-  distinct() %>% 
   ungroup() %>% 
+  distinct() %>% 
   mutate(year = year(rptdt))
 
 ncands_first_nat<-ncands_first %>% 
-  group_by(chage, year) %>% 
+  group_by(.imp, race_ethn, chage, year) %>% 
   summarise(var = n()) %>% 
+  ungroup() %>% 
   rename(age = chage) %>% 
   left_join(pop) %>% 
-  ungroup()
+  filter(age < 18)
 
 ### run lifetable by year
 
@@ -83,11 +80,11 @@ for(i in 1:length(years)){
                   filter(year==years[i]))
 }
 
-investigation_tables<-bind_rows(investigation_tables)
+investigation_tables<-bind_rows(investigation_tables) 
 
 investigation_tables %>% 
   filter(age==17) %>% 
-  ggplot(aes(x=year, y = c)) +
+  ggplot(aes(x=year, y = c, color = race_ethn)) +
   geom_line()
 
 ### way lower rates in 17
