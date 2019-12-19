@@ -9,29 +9,15 @@ output: html_document
 ```{r include=F}
 rm(list=ls()); gc()
 library(tidyverse)
+library(lubridate)
 source("lifetable.r")
 
-pop<-read_csv("./data/pop_nat.csv")
-afcars<-read_csv("./data/afcars_subset.csv",
-                 col_types = cols(stfcid="c")) 
-
-afcars_all<-read_csv("./data/afcars_id_xwalk.csv",
-                     col_types = cols(stfcid="c"))
-
-xwalk<-read_csv("./data/xwalk_merged.csv")
 
 ```
 
 
 ## OUTLINE
 
-<<<<<<< HEAD
-This report examines how american indian children are processed through us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
-
-I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster placement, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
-
-## What am I estimating
-=======
 This report examines how American Indian and Alaska Native children are processed through US child welfare systems. It explores the likelihood that American Indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
 
 I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster care settings, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
@@ -50,68 +36,33 @@ This report pays particular attention to the probability of particular case proc
 In doing so, this report provides a portrait of child-welfare system involvement for American Indian/Alaska Native children at the national level. Future versions of this report will detail sub-national variation. Sub-national estimates can be coupled with relevant system-level or child-level data to help evaluate which features of places are associated with investigation, substantiation, placement, and termination decisions for AI/AN children and families.
 
 In each section, I first explore how risk has shifted over time with an exploration of national trends in lifetime risk between 2003 and 2016. Next, I provide detailed estimates of risk for the 2012 - 2016 period with an emphasis on both lifetime and age-specific risks.
->>>>>>> 44206df1334cff34bf2ddda4d77b0f5c9ffae22e
 
-In contrast to per capita event rates, life table estimates allow us to simulate the incidence of an event over the course of a child's life. These estimates adjust for variable age-specific risk to provide a more comprehensive single estimate of event incidence in the population. 
+In contrast to per capita event rates, life table estimates allow us to simulate the incidence of an event over the course of a child's life. These estimates adjust for variable age-specific risk and population size to provide a more comprehensive single estimate of event incidence in the population. 
 
 ## Investigations
 
 What proportion of AI/AN children are likely to experience a child welfare system investigation during the course of their childhood? I examine the child-level probability of ever experiencing an investigation by examining the proportion of children in each year of the data that experience their first maltreatment investigation, then using these numbers to construct period life tables, first as annual tables, and second as a grouped 2012 - 2016 table (which stabilizes trends driven by small age-specific event counts).
 
-
-
-$P(\textsf{investigation})$
-
-Establish the probability that a child was ever investigated.
-
 ```{r ncandstables.pop}
-### identify first report
-ncands_first<-ncands %>% 
-<<<<<<< HEAD
-  select(.imp, race_ethn, stfcid, chage, rptdt) %>% 
-  group_by(stfcid) %>% 
-  filter(rptdt==min(rptdt)) %>% 
-  ungroup() %>% 
-  distinct() %>% 
-=======
-  select(.imp, chid, chage, rptdt) %>% 
-  group_by(chid) %>% 
-  filter(rptdt==min(rptdt)) %>% 
-  distinct() %>% 
-  ungroup() %>% 
->>>>>>> 44206df1334cff34bf2ddda4d77b0f5c9ffae22e
-  mutate(year = year(rptdt))
-
-ncands_first_nat<-ncands_first %>% 
-  group_by(.imp, race_ethn, chage, year) %>% 
-  summarise(var = n()) %>% 
-  ungroup() %>% 
-  rename(age = chage) %>% 
-  left_join(pop) %>% 
-  filter(age < 18)
-
+### read in new first investigation csv
 ### run lifetable by year
 
 investigation_tables<-list()
 years<-unique(ncands_first_nat$year)
+race_ethn<-unique(ncands_first$race_ethn)
 for(i in 1:length(years)){
+  for(r in 1:length(race_ethn)){
   investigation_tables[[i]]<-make_life_table(ncands_first_nat %>% 
-                  filter(year==years[i]))
+                  filter(year==years[i]) %>% 
+                    filter(race_ethn == race_ethn[r]))
+  }
 }
 
-<<<<<<< HEAD
-investigation_tables<-bind_rows(investigation_tables) 
-
-investigation_tables %>% 
-  filter(age==17) %>% 
-  ggplot(aes(x=year, y = c, color = race_ethn)) +
-=======
 investigation_tables<-bind_rows(investigation_tables)
 
 investigation_tables %>% 
   filter(age==17) %>% 
-  ggplot(aes(x=year, y = c)) +
->>>>>>> 44206df1334cff34bf2ddda4d77b0f5c9ffae22e
+  ggplot(aes(x=year, y = c, color = race_ethn)) +
   geom_line()
 
 ### way lower rates in 17
@@ -119,22 +70,14 @@ investigation_tables %>%
 ### counts are low, probably some non-reporting states, removing for now
 ```
 
+FIG 1: TS plot of age 17 cumulative investigation risk by year
+
 VISUALIZE investigation tables
 
 ## $P(substantiation)$
 
 ```{r fctables.ncands}
-ncands_first<-ncands %>% 
-  filter(rptvictim==1) %>% 
-  group_by(chid) %>% 
-  filter(rptdt==min(rptdt))
 
-ncands_first_subst_nat<-ncands_first %>% 
-  group_by(chage, year) %>% 
-  summarise(var = n()) %>% 
-  rename(age = chage) %>% 
-  left_join(pop) %>% 
-  ungroup()
 
 ### run lifetable by year
 
@@ -179,19 +122,6 @@ sub_inv<-make_conditionals(subst_tables, investigation_tables)
 ## $P(FC)$ using AFCARS
 
 ```{r fctables.pop}
-### look at first fc placement
-afcars_first <- afcars %>% 
-  group_by(stfcid) %>% 
-  filter(age == min(age) & year == min(year)) %>% 
-  select(stfcid, age, year) %>% 
-  distinct()
-### this matches length(unique(afcars$stfcid))
-
-afcars_first_nat<-afcars_first %>% 
-  group_by(age, year) %>% 
-  summarise(var = n()) %>% 
-  left_join(pop) %>% 
-  ungroup()
 
 ### run lifetable by year
 fc_tables<-list()
@@ -202,66 +132,6 @@ for(i in 1:length(years)){
 }
 
 fc_tables<-bind_rows(fc_tables)
-```
-
-## $P(FC)$ using NCANDS
-
-```{r}
-### look at first fc placement
-ncands_first_fc <- ncands %>% 
-  filter(!(is.na(afcarsid))) %>% 
-  group_by(chid) %>% 
-  filter(rptdt==min(rptdt)) %>% 
-  select(chid, afcarsid, chage, year) %>% 
-  ungroup() %>% 
-  distinct()
-### this matches length(unique(afcars$stfcid))
-
-ncands_fc_nat<-ncands_first_fc %>% 
-  rename(age = chage) %>% 
-  group_by(age, year) %>% 
-  summarise(var = n()) %>% 
-  left_join(pop) %>% 
-  ungroup()
-
-### run lifetable by year
-fc_tables<-list()
-years<-unique(afcars_first_nat$year)
-for(i in 1:length(years)){
-  fc_tables[[i]]<-make_life_table(afcars_first_nat %>% 
-                  filter(year==years[i]))
-}
-
-fc_tables<-bind_rows(fc_tables)
-```
-
-
-## $P(entered, investigation)$ using ncands
-```{r fctables.ncands}
-ncands_fc_first<-ncands %>% 
-  filter(ever_entered==T) %>% 
-  group_by(stfcid) %>% 
-  filter(chage==min(chage)) %>% 
-  ungroup() %>% 
-  select(stfcid, year, chage) %>% 
-  distinct()
-
-ncands_fc_nat<-ncands_fc_first %>% 
-  group_by(year, chage) %>% 
-  summarise(var = n()) %>% 
-  rename(age = chage) %>% 
-  left_join(pop) %>% 
-  ungroup()
-
-### run lifetable by year
-ncands_fc_tables<-list()
-years<-unique(ncands_fc_nat$year)
-for(i in 1:length(years)){
-  ncands_fc_tables[[i]]<-make_life_table(ncands_fc_nat %>% 
-                  filter(year==years[i]))
-}
-
-ncands_fc_tables<-bind_rows(ncands_fc_tables)
 ```
 
 ## $P(investigation , entered)$ using afcars
@@ -274,21 +144,7 @@ ncands_fc_tables<-bind_rows(ncands_fc_tables)
 ### to ensure I have inv prior to fc
 ### to obtain P(inv,entered) where entered occurs after inv
 
-afcars_inv<-afcars_first %>% 
-  left_join(ncands_xwalk %>% 
-              select(stfcid, rptdt) %>% 
-              mutate(ncands_inv = T))
-
-afcars_inv<-afcars_inv %>% 
-  ungroup() %>% 
-  mutate(rpt_year = year(rptdt)) %>% 
-  filter(!(is.na(ncands_inv))) 
-
-## remove when year(rptdt)>year
-
-afcars_inv<-afcars_inv %>% 
-  filter(year>=rpt_year)
-
+### lifetable for p(inv,entered)
 
 
 ```
