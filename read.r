@@ -22,7 +22,7 @@ pop<-pop%>%
   filter(year>=2000)
 
 pop<-pop %>% 
-  group_by(age, race_ethn) %>% 
+  group_by(year, age, race_ethn) %>% 
   summarise(pop = sum(pop))
 
 afcars<-read_csv("./data/afcars_imputed_all_cases.csv",
@@ -32,7 +32,6 @@ ncands<-read_csv("./data/ncands_imputed.csv")
 
 ncands_xwalk<-read_csv("./data/ncands_xwalk.csv",
                        col_types = cols(stfcid = "c"))
-sink("./log.txt")
 
 library(maps)
 data(state.fips)
@@ -171,6 +170,5 @@ afcars_icwa_nat<-afcars_icwa %>%
 #   filter(race_ethn=="AI/AN" | race_ethn=="White") %>% 
 #   filter(.imp==1) %>% 
 #   write.csv("./data/afcars_subset.csv", row.names=F)
-sink()
 q("no")
   
