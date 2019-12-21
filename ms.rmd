@@ -14,32 +14,32 @@ source("lifetable.r")
 
 ncands_inv<-read_csv("./data/ncands_first_inv.csv") %>% 
   filter(year>=2003, year<2017) %>% 
-  filter(age<=18) %>% 
+  filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 ncands_sub<-read_csv("./data/ncands_first_sub.csv")%>% 
   filter(year>=2003, year<2017)%>% 
-  filter(age<=18) %>% 
+  filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_fc<-read_csv("./data/afcars_first_fc.csv")%>% 
   filter(year>=2003, year<2017)%>% 
-  filter(age<=18) %>%   
+  filter(age<18) %>%   
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_tpr<-read_csv("./data/afcars_tpr.csv")%>% 
   filter(year>=2003, year<2017)%>% 
-  filter(age<=18) %>% 
+  filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_non_icwa<-read_csv("./data/afcars_non_icwa.csv")%>% 
   filter(year>=2003, year<2017)%>% 
-  filter(age<=18) %>% 
+  filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_fc_inv<-read_csv("./data/afcars_fc_post_inv.csv")%>% 
   filter(year>=2003, year<2017)%>% 
-  filter(age<=18) %>% 
+  filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 ```
@@ -102,15 +102,19 @@ for(i in 1:5){
 investigation_tables<-bind_rows(investigation_tables)
 
 investigation_tables_c<-investigation_tables %>% 
-  filter(age==18) %>% 
+  filter(age==17) %>% 
   group_by(year, race_ethn) %>% 
-  summarise(c = mean(c), cmax = max(c), cmin = min(c))
+  summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
 
 investigation_tables_c %>% 
-  ggplot(aes(x=year, y = c, color = race_ethn, group = race_ethn,
+  ggplot(aes(x=year, y = c_mn, 
+             fill = race_ethn,
+             group = race_ethn,
              ymin = cmin, ymax = cmax)) +
-  geom_line() +
-  geom_ribbon()
+  geom_ribbon(alpha = .5) + 
+  geom_line(aes(color = race_ethn)) + 
+  xlab("Year") + 
+  ylab("Proportion with screened-in report before age 18")
 
 ### way lower rates in 17
 ### check total case counts
@@ -127,15 +131,40 @@ VISUALIZE investigation tables
 
 
 ### run lifetable by year
-
 subst_tables<-list()
-years<-unique(ncands_first_subst_nat$year)
-for(i in 1:length(years)){
-  subst_tables[[i]]<-make_life_table(ncands_first_subst_nat %>% 
-                  filter(year==years[i]))
+years<-unique(ncands_sub$year)
+race_ethn<-unique(ncands_sub$race_ethn)
+index<-1
+for(i in 1:5){
+  for(j in 1:length(years)){
+    for(r in 1:length(race_ethn)){
+      temp<-ncands_sub %>% 
+        filter(year==years[j])
+      temp<-temp %>% 
+        filter(race_ethn == race_ethn[r])
+      temp<-temp %>% 
+        filter(.imp==i)
+      subst_tables[[index]]<-make_life_table(temp)
+      index<-index+1
+    }
+  }
 }
-
 subst_tables<-bind_rows(subst_tables)
+
+subst_tables_c<-subst_tables %>% 
+  filter(age==17) %>% 
+  group_by(year, race_ethn) %>% 
+  summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
+
+subst_tables_c %>% 
+  ggplot(aes(x=year, y = c_mn, 
+             fill = race_ethn,
+             group = race_ethn,
+             ymin = cmin, ymax = cmax)) +
+  geom_ribbon(alpha = .5) + 
+  geom_line(aes(color = race_ethn)) + 
+  xlab("Year") + 
+  ylab("Proportion with substantiation before age 18")
 ```
 
 ## $P(subst|inv)$
@@ -169,29 +198,79 @@ sub_inv<-make_conditionals(subst_tables, investigation_tables)
 ## $P(FC)$ using AFCARS
 
 ```{r fctables.pop}
-
-### run lifetable by year
 fc_tables<-list()
-years<-unique(afcars_first_nat$year)
-for(i in 1:length(years)){
-  fc_tables[[i]]<-make_life_table(afcars_first_nat %>% 
-                  filter(year==years[i]))
+years<-unique(afcars_fc$year)
+race_ethn<-unique(afcars_fc$race_ethn)
+index<-1
+for(i in 1:5){
+  for(j in 1:length(years)){
+    for(r in 1:length(race_ethn)){
+      temp<-afcars_fc %>% 
+        filter(year==years[j])
+      temp<-temp %>% 
+        filter(race_ethn == race_ethn[r])
+      temp<-temp %>% 
+        filter(.imp==i)
+      fc_tables[[index]]<-make_life_table(temp)
+      index<-index+1
+    }
+  }
 }
-
 fc_tables<-bind_rows(fc_tables)
+
+fc_tables_c<-fc_tables %>% 
+  filter(age==17) %>% 
+  group_by(year, race_ethn) %>% 
+  summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
+
+fc_tables_c %>% 
+  ggplot(aes(x=year, y = c_mn, 
+             fill = race_ethn,
+             group = race_ethn,
+             ymin = cmin, ymax = cmax)) +
+  geom_ribbon(alpha = .5) + 
+  geom_line(aes(color = race_ethn)) + 
+  xlab("Year") + 
+  ylab("Proportion ever in foster care before age 18")
 ```
 
 ## $P(investigation , entered)$ using afcars
 
 ```{r}
-### among all entries, match on investigation
-### question is afcars or ncands on left for join
-### likely assymetry
-### need first inv date in ncands_xwalk
-### to ensure I have inv prior to fc
-### to obtain P(inv,entered) where entered occurs after inv
+fc_post_inv_tables<-list()
+years<-unique(afcars_fc_inv$year)
+race_ethn<-unique(afcars_fc_inv$race_ethn)
+index<-1
+for(i in 1:5){
+  for(j in 1:length(years)){
+    for(r in 1:length(race_ethn)){
+      temp<-afcars_fc_inv %>% 
+        filter(year==years[j])
+      temp<-temp %>% 
+        filter(race_ethn == race_ethn[r])
+      temp<-temp %>% 
+        filter(.imp==i)
+      fc_post_inv_tables[[index]]<-make_life_table(temp)
+      index<-index+1
+    }
+  }
+}
+fc_post_inv_tables<-bind_rows(fc_post_inv_tables)
 
-### lifetable for p(inv,entered)
+fc_post_inv_tables_c<-fc_post_inv_tables %>% 
+  filter(age==17) %>% 
+  group_by(year, race_ethn) %>% 
+  summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
+
+fc_post_inv_tables_c %>% 
+  ggplot(aes(x=year, y = c_mn, 
+             fill = race_ethn,
+             group = race_ethn,
+             ymin = cmin, ymax = cmax)) +
+  geom_ribbon(alpha = .5) + 
+  geom_line(aes(color = race_ethn)) + 
+  xlab("Year") + 
+  ylab("Proportion with foster care entry after screened-in report")
 
 
 ```
