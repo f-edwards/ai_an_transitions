@@ -12,9 +12,37 @@ library(tidyverse)
 library(lubridate)
 source("lifetable.r")
 
-
+ncands_inv<-read_csv("./data/ncands_first_inv.csv") %>% 
+  filter(year>=2003, year<2017) %>% 
+  filter(age<=18) %>% 
+  filter(.imp!=0) %>% 
+  filter(race_ethn == "AI/AN" | race_ethn == "White")
+ncands_sub<-read_csv("./data/ncands_first_sub.csv")%>% 
+  filter(year>=2003, year<2017)%>% 
+  filter(age<=18) %>% 
+  filter(.imp!=0) %>% 
+  filter(race_ethn == "AI/AN" | race_ethn == "White")
+afcars_fc<-read_csv("./data/afcars_first_fc.csv")%>% 
+  filter(year>=2003, year<2017)%>% 
+  filter(age<=18) %>%   
+  filter(.imp!=0) %>% 
+  filter(race_ethn == "AI/AN" | race_ethn == "White")
+afcars_tpr<-read_csv("./data/afcars_tpr.csv")%>% 
+  filter(year>=2003, year<2017)%>% 
+  filter(age<=18) %>% 
+  filter(.imp!=0) %>% 
+  filter(race_ethn == "AI/AN" | race_ethn == "White")
+afcars_non_icwa<-read_csv("./data/afcars_non_icwa.csv")%>% 
+  filter(year>=2003, year<2017)%>% 
+  filter(age<=18) %>% 
+  filter(.imp!=0) %>% 
+  filter(race_ethn == "AI/AN" | race_ethn == "White")
+afcars_fc_inv<-read_csv("./data/afcars_fc_post_inv.csv")%>% 
+  filter(year>=2003, year<2017)%>% 
+  filter(age<=18) %>% 
+  filter(.imp!=0) %>% 
+  filter(race_ethn == "AI/AN" | race_ethn == "White")
 ```
-
 
 ## OUTLINE
 
@@ -48,22 +76,35 @@ What proportion of AI/AN children are likely to experience a child welfare syste
 ### run lifetable by year
 
 investigation_tables<-list()
-years<-unique(ncands_first_nat$year)
-race_ethn<-unique(ncands_first$race_ethn)
-for(i in 1:length(years)){
-  for(r in 1:length(race_ethn)){
-  investigation_tables[[i]]<-make_life_table(ncands_first_nat %>% 
-                  filter(year==years[i]) %>% 
-                    filter(race_ethn == race_ethn[r]))
+years<-unique(ncands_inv$year)
+race_ethn<-unique(ncands_inv$race_ethn)
+index<-1
+for(i in 1:5){
+  for(j in 1:length(years)){
+    for(r in 1:length(race_ethn)){
+      temp<-ncands_inv %>% 
+        filter(year==years[j])
+      temp<-temp %>% 
+        filter(race_ethn == race_ethn[r])
+      temp<-temp %>% 
+        filter(.imp==i)
+      investigation_tables[[index]]<-make_life_table(temp)
+      index<-index+1
+    }
   }
 }
-
 investigation_tables<-bind_rows(investigation_tables)
 
-investigation_tables %>% 
-  filter(age==17) %>% 
-  ggplot(aes(x=year, y = c, color = race_ethn)) +
-  geom_line()
+investigation_tables_c<-investigation_tables %>% 
+  filter(age==18) %>% 
+  group_by(year, race_ethn) %>% 
+  summarise(c = mean(c), cmax = max(c), cmin = min(c))
+
+investigation_tables_c %>% 
+  ggplot(aes(x=year, y = c, color = race_ethn, group = race_ethn,
+             ymin = cmin, ymax = cmax)) +
+  geom_line() +
+  geom_ribbon()
 
 ### way lower rates in 17
 ### check total case counts
