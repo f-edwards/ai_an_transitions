@@ -88,9 +88,9 @@ afcars_first <- afcars %>%
 
 sink("log.txt")
 print("afcars_first length")
-nrow(afcars_first)
+print(nrow(afcars_first))
 print("unique fcid")
-length(unique(afcars$stfcid))
+print(length(unique(afcars$stfcid)))
 sink()
 
 afcars_first_nat<-afcars_first %>% 
@@ -110,9 +110,9 @@ afcars_inv<-afcars_first %>%
 
 sink("log2.txt")
 print("afcars_inv post join length")
-nrow(afcars_inv)
+print(nrow(afcars_inv))
 print("unique ids")
-length(unique(afcars_inv$stfcid))
+print(length(unique(afcars_inv$stfcid)))
 sink()
 
 afcars_inv<-afcars_inv %>% 
