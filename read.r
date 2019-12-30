@@ -53,7 +53,6 @@ ncands<-ncands %>%
   filter(!(is.na(subyr)))
 
 ncands_first<-ncands %>%
-  select(.imp, chid, race_ethn, chage, rptdt) %>%
   arrange(.imp, rptdt) %>% 
   group_by(.imp, stfcid) %>%
   slice(1)
@@ -125,7 +124,7 @@ afcars_inv<-afcars_inv %>%
 # remove when year(rptdt)>year
 
 afcars_inv<-afcars_inv %>%
-  filter(year<=rpt_year)
+  filter(year>=rpt_year)
 
 afcars_inv_nat<-afcars_inv %>%
   group_by(.imp, age, race_ethn, year) %>%
@@ -134,6 +133,20 @@ afcars_inv_nat<-afcars_inv %>%
   ungroup() %>%
   write_csv("./data/afcars_fc_post_inv.csv")
 
+afcars_sub<-afars_first %>% 
+  left_join(ncands_first_subst %>% 
+              select(.imp, stfcid, rptdt)) %>%
+  mutate(rptyr=year(rptdt)) %>% 
+  filter(!(is.na(rptyr))) %>% 
+  filter(year>=rptyr)
+  
+afcars_sub_nat<-afcars_sub %>% 
+  group_by(.imp, age, race_ethn, year) %>%
+  summarise(var = n()) %>%
+  left_join(pop) %>%
+  ungroup() %>%
+  write_csv("./data/afcars_fc_post_sub.csv")
+  
 afcars_tpr<-afcars %>%
   filter(istpr==1) %>%
   arrange(.imp, year) %>% 

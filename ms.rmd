@@ -1,16 +1,21 @@
 ---
-title: The Processing of American Indian/Alaska Native Children through non-Tribal
-  Child Welfare Systems
+title: The prevalence of child welfare system contact among American Indian / Alaska Native children, 2003 - 2016
+subtitle: Report prepared for Casey Family Programs
 author: "Frank Edwards"
-date: "12/12/2019"
-output: html_document
+date: "Rutgers University - Newark"
+output: 
+  bookdown::pdf_document2
+bibliography: library.bib
 ---
 
 ```{r include=F}
 rm(list=ls()); gc()
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
 library(tidyverse)
 library(lubridate)
+library(gridExtra)
 source("lifetable.r")
+theme_set(theme_bw())
 
 ncands_inv<-read_csv("./data/ncands_first_inv.csv") %>% 
   filter(year>=2003, year<2017) %>% 
@@ -44,54 +49,94 @@ afcars_fc_inv<-read_csv("./data/afcars_fc_post_inv.csv")%>%
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 ```
 
-## OUTLINE
+# Executive summary {-#executive-summary}
 
-This report examines how american indian children are processed through us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
+This report examines how american indian children are processed through
+us child welfare systems. it explores the likelihood that american indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and children.
 
-I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster placement, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
+**FINDINGS HERE**
 
-## What am I estimating
+# Introduction
 
-This report examines how American Indian and Alaska Native children are processed through US child welfare systems. It explores the likelihood that American Indian children eventually end up in foster care, end up in foster care with non-indian foster parents, or see the rights of their parents terminated. I compare these pathways through the foster care system to the pathways experienced by white and African American children. 
+American Indian / Alaska Native (AI/AN) children and families are far more likely to experience contact with the child welfare system than are their white peers *(CITES)*. *STATEMENT ON SIGNIFICANCE*
+
+This report provides national estimates of the prevalence of a series of child welfare system contact outcomes for AI/AN children, in addition to estimating the likelihood that children transition to more serious child welfare system outcomes conditional on lower-level contacts, such as investigations.
 
 I use the 2003 - 2016 AFCARS and NCANDS to calculate period lifetables for lifetime risk of investigation, substantiation, placement, placement into a non-ICWA compliant foster care settings, and termination of parental rights. Each of these tables provides an estimate of the cumulative risk of experiencing the event before age 18 if risk-levels observed during the reported period remain constant.
 
-This report pays particular attention to the probability of particular case processing decisions for AI/AN children, conditional on prior decision points. In doing so, we can begin to zoom-in on whether inequalities for AI/AN children emerge at particular decision points. The first component of the report provides national estimates of the following probabilities
+For the national population of both AI/AN and white children, I estimate the following probabilities of event occurence by age, and as a cumulative likelihood of event occurrence before a child's 18th birthday:
 
-1. $Pr(investigation)$
-2. $Pr(substantiated|investigation)$
-3. $Pr(placement)$
-3. $Pr(placement|investigation)$
-4. $Pr(placement|substantiation)$
-4. $Pr(\textsf{ICWA non-compliant placement}|placement)$
-4. $Pr(\textsf{long-term placement}|placement)$
-5. $Pr(termination|placement)$
+1. Screened-in maltreatment report
+2. Confirmed or substantiated maltreatment report
+3. Foster care placement
+3. Placement in foster home that is not compliant with ICWA guidelines (for AI/AN children)
+4. Termination of both parent's rights while in foster care
 
-In doing so, this report provides a portrait of child-welfare system involvement for American Indian/Alaska Native children at the national level. Future versions of this report will detail sub-national variation. Sub-national estimates can be coupled with relevant system-level or child-level data to help evaluate which features of places are associated with investigation, substantiation, placement, and termination decisions for AI/AN children and families.
+Inequalities in system outcomes for AI/AN children could emerge at multiple stages of case processing. To evaluate how each stage of case processing may contribute to inequality, I explore the probability of upstream system decisions, conditional on the occurrence of earlier decisions. I estimate the following conditional probabilities by child age for both AI/AN and white children: 
 
-In each section, I first explore how risk has shifted over time with an exploration of national trends in lifetime risk between 2003 and 2016. Next, I provide detailed estimates of risk for the 2012 - 2016 period with an emphasis on both lifetime and age-specific risks.
+1. Substantiation, conditional on screened-in report
+2. Foster care placement, conditional on screened-in report
+3. Foster care placement, conditional on substantiated report
+4. ICWA non-compliant placement, conditional on any foster care placement
+5. Parental rights termination, conditional on any foster care placmeent
 
-In contrast to per capita event rates, life table estimates allow us to simulate the incidence of an event over the course of a child's life. These estimates adjust for variable age-specific risk and population size to provide a more comprehensive single estimate of event incidence in the population. 
+In doing so, this report provides a portrait of child-welfare system involvement for American Indian/Alaska Native children at the national level, and draws attention to the stages of case processing during which inequalities emerge. 
 
-## Investigations
+Because federal data systems do not currently include information from tribal child welfare systems, estimates for AI/AN should be interpreted as conservative. All estimates presented below are for contact with non-tribal state and local child welfare agencies. Also, note that this analysis does not adjust for case-level characteristics. It is likely that child-level, family-level, caseworker-level, agency-level, and state-level features all affect these probabilities. 
+
+# Data
+
+This analysis relies on data from the National Child Abuse and Neglect Data System (NCANDS) and the Adoption and Foster Care Analysis and Reporting System (AFCARS), using data files from 2003 - 2017. I adjust all data to the calendar year beginning January 1 and ending December 31. Because NCANDS and AFCARS reporting years span October 1 through September 30 of each year, this report does not provide estimates for 2017 probabilities, as data from October, November and December 2017 had not yet been released as of the date of this report. 
+
+NCANDS provides data on each screened-in report of child abuse and neglect. I use a unique child identifier (harmonized across NCANDS and AFCARS) to identify the first time a child was the subject of a maltreatment investigation, and the first time a child was the subject of a substantiated or confirmed maltreatment investigation across the 15 years of maltreatment data included in this analysis. Some states did not begin reporting data to NCANDS until later in this time period. All population figures are adjusted to account for the variable participation of state in NCANDS data reporting. 
+
+All children placed by non-Tribal child welfare agencies into out-of-home foster care are documented annually in AFCARS. Using a unique child identifier, I record the first year in which a child a) entered foster care, b) was in an ICWA non-compliant foster placement, and c) had the rights of both parents terminated while in foster care. Because AFCARS only records the latest placement during a reporting year, and a child may be subject to multiple placements during a reporting year, estimates for ICWA non-compliant placements may be negatively biased.
+
+I match children across NCANDS and AFCARS to identify children in foster care that ever experienced a maltreatment report, then compare first maltreatment date to first foster care entry date to restrict matches to those cases where a maltreatment report preceded a child's first foster care entry.
+
+Data on child and caretaker race/ethnicity are occasionally missing in AFCARS and NCANDS. I construct multiple imputation models to provide reasonable uncertainty bounds on estimates driven by missing data.
+
+# Methods
+
+## Period life tables
+
+The prevalence of an event can be estimated at a point-in-time using annual data on events, but these estimates may be misleading in understanding event prevalence in a population if individuals experience multiple events in a year, multiple events over their life course, or if there are significant levels of mortality during the period of potential exposure. For example, a child may be the subject of multiple maltreatment events during a year, or multiple foster care entries across years. Infant and child mortality rates may also differ across groups in ways that structure underlying risk of exposure. 
+
+Life table methods adjust for the variable risk of an event and the varying size of a population over the life course by following a cohort of children over their life course to observe the incidence of an event. Given shifts in risk over time, and the lack of longitudinal data on children over a sufficientily long period of time, I use a period life table approach, that creates a synthetic cohort of 100,000 children, and simulates the risk of experiencing each event based on the observed incidence in the population. This method relies on two key assumptions: 1) that event risk remains stable at observed levels for each age-group as the cohort ages and 2) that mortality rates for each age-group remain stable at observed levels as the cohort ages. 
+
+As shown in the figures below, risk for each child welfare system event is variable over time, calling into question the assumption of stable event risk. I describe these trends by estimating single-year life tables, then provide smoothed estimates by pooling 5 years of data from the most recent observations (2012-2016).
+
+## Marginal and conditional probabilities
+
+Marginal probabilities can be interpreted as either a) the likelihood that an individual will experience an event or b) the proportion of the population that will experience an event. In sections **N THROUGH P** I estimate the marginal probability of a series of child welfare events for the complete population of AI/AN and white children.
+
+Conditional probabilities describe the likelihood of an event, conditional on knowing that another event occurred. A probability of event $A$ conditional on event $B$, $Pr(A|B)$ can be interpreted as the likelihood that an individual who experiences event B will experience event A. Alternatively, we can interprent this probability as the proportion of individuals who experienced B that also experienced A. Formally, the conditional probability of a event A conditional on event B is defined as the ratio of the joint probability of A and B divided by the marginal probability of event B:
+
+\[P(A|B) = \frac{P(A,B)}{P(B)}\]
+
+Some events, like substantiation of a maltreatment report, are defined by their relationship to a prior event. All children who were substantiated must have a maltreatment report, such that the joint probability of having a substantiated report and having a report is equal to the marginal probability of having a report $Pr(\textrm{substantiation}, \textrm{report}) = Pr(\textrm{substantiation})$. For these variables, the conditional probability is simply the ratio of the marginal probabilities: $Pr(A|B) = \frac{Pr(A)}{Pr(B)}$.
+
+For each of these calculations, the probabilities are age-specific event probabilities estimated from period life tables. 
+
+# Investigations
 
 What proportion of AI/AN children are likely to experience a child welfare system investigation during the course of their childhood? I examine the child-level probability of ever experiencing an investigation by examining the proportion of children in each year of the data that experience their first maltreatment investigation, then using these numbers to construct period life tables, first as annual tables, and second as a grouped 2012 - 2016 table (which stabilizes trends driven by small age-specific event counts).
 
-```{r ncandstables.pop}
+```{r inv, fig.pos="h", out.extra = '', fig.cap = "(A): Risk of maltreatment investigation by age 18, 2003 - 2016 annual period life table. (B): Age-specific risk of first maltreatment investigation, 2012 - 2016 pooled period life table"}
 ### read in new first investigation csv
 ### run lifetable by year
 
 investigation_tables<-list()
 years<-unique(ncands_inv$year)
-race_ethn<-unique(ncands_inv$race_ethn)
+race_id<-unique(ncands_inv$race_ethn)
 index<-1
 for(i in 1:5){
   for(j in 1:length(years)){
-    for(r in 1:length(race_ethn)){
+    for(r in 1:length(race_id)){
       temp<-ncands_inv %>% 
         filter(year==years[j])
       temp<-temp %>% 
-        filter(race_ethn == race_ethn[r])
+        filter(race_ethn == race_id[r])
       temp<-temp %>% 
         filter(.imp==i)
       investigation_tables[[index]]<-make_life_table(temp)
@@ -106,43 +151,78 @@ investigation_tables_c<-investigation_tables %>%
   group_by(year, race_ethn) %>% 
   summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
 
-investigation_tables_c %>% 
-  ggplot(aes(x=year, y = c_mn, 
-             fill = race_ethn,
-             group = race_ethn,
-             ymin = cmin, ymax = cmax)) +
-  geom_ribbon(alpha = .5) + 
-  geom_line(aes(color = race_ethn)) + 
-  xlab("Year") + 
-  ylab("Proportion with screened-in report before age 18")
 
-### way lower rates in 17
-### check total case counts
-### counts are low, probably some non-reporting states, removing for now
+investigation_tables_pooled<-list()
+race_id<-unique(ncands_inv$race_ethn)
+imps<-unique(ncands_inv$.imp)
+index<-1
+for(i in 1:imps){
+  for(r in 1:length(race_id)){
+    temp<-ncands_inv %>% 
+      filter(year>2011) 
+    temp<-temp %>% 
+      filter(race_ethn == race_id[r])
+    temp<-temp %>% 
+      filter(.imp==i)
+    temp<-temp %>% 
+      group_by(.imp, age, race_ethn) %>% 
+      summarise(var = sum(var), pop = sum(pop)) %>% 
+      ungroup()
+    investigation_tables_pooled[[index]]<-make_life_table(temp)
+    index<-index+1
+  }
+}
+investigation_tables_pooled<-bind_rows(investigation_tables_pooled)
+
+
+ts<-investigation_tables_c %>% 
+  ggplot(aes(x=year, y = c_mn, 
+             color = race_ethn,
+             ymin = cmin, ymax = cmax)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Year") + 
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(A)") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+age<-investigation_tables_pooled %>% 
+  ggplot(aes(x=age, y = q, 
+             color = race_ethn)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Age") + 
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(B)") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(ts, age)
 ```
 
-FIG 1: TS plot of age 17 cumulative investigation risk by year
+Changes in risk of ever-experiencing a maltreatment investigation over time are displayed in Figure \@ref(fig:inv), panel A. Risk for AI/AN children is indicated with the pink line, and white children with a blue line. Underlying risk of maltreatment investigations has shifted for both groups over between 2003 and 2016. For AI/AN children, risk has declined over time from a peak of 0.38 in 2003 to 0.34 in 2016. During this period, risk was at its lowest in 2010 (0.32). Inequality in risk between AI/AN and white children narrowed substantially over this period. In 2003, AI/AN children were 1.37 times more likely than white children to have a screened-in report. In 2016, were 1.05 times more likely than white children to have a screened-in report.
 
-VISUALIZE investigation tables
+Figure \@ref(fig:inv) panel B displays the age-specific risk of a first screened-in maltreatment report for AI/AN and white children using pooled 2012 - 2016 data. Risk is highest in the first years of life, and risk for AI/AN children is markedly higher than risk for white children during infancy. AI/AN infants are 1.44 times more likely than white infants to recieve a screened-in maltreatment report. Between 2012 and 2016, 7.7 percent of AI/AN infants recieve a report, compared to 5.3 percent of white infants. AI/AN children are at elevated risk until age 6. At later ages, risk profiles for AI/AN and white children converge.  
 
-## $P(substantiation)$
+# Substantiation
 
-```{r}
+Next, I estimate the marginal probability of ever experiencing a maltreatment investigation before age 18, and the probability of experiencing a first investigation at each age between birth and 17. Panel A in Figure \@ref(fig:sub) shows how the lifetime risk of substantiation has shifted over time. Unlike investigations, substantiation risk levels have not clearly increased or decreased across this time period. AI/AN risk levels fluctuated around the period-average level of 0.14, whereas white risk levels centered around 0.1. In 2016, AI/AN children's risk of substantiation before age 18 was 0.16, and white chilren's risk was 0.1.
 
-
+```{r sub,  fig.pos="h", out.extra = '', fig.cap = "(A): Risk of substantiated maltreatment investigation by age 18, 2003 - 2016 annual period life table. (B): Age-specific risk of first substantiated maltreatment investigation, 2012 - 2016 pooled period life table"}
 ### run lifetable by year
 subst_tables<-list()
 years<-unique(ncands_sub$year)
-race_ethn<-unique(ncands_sub$race_ethn)
+race_id<-unique(ncands_inv$race_ethn)
 index<-1
 for(i in 1:5){
   for(j in 1:length(years)){
-    for(r in 1:length(race_ethn)){
-      temp<-ncands_sub %>% 
+    for(r in 1:length(race_id)){
+      temp<-ncands_sub %>%
         filter(year==years[j])
-      temp<-temp %>% 
-        filter(race_ethn == race_ethn[r])
-      temp<-temp %>% 
+      temp<-temp %>%
+        filter(race_ethn == race_id[r])
+      temp<-temp %>%
         filter(.imp==i)
       subst_tables[[index]]<-make_life_table(temp)
       index<-index+1
@@ -151,38 +231,96 @@ for(i in 1:5){
 }
 subst_tables<-bind_rows(subst_tables)
 
-subst_tables_c<-subst_tables %>% 
-  filter(age==17) %>% 
-  group_by(year, race_ethn) %>% 
+subst_tables_c<-subst_tables %>%
+  filter(age==17) %>%
+  group_by(year, race_ethn) %>%
   summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
 
-subst_tables_c %>% 
+sub_tables_pooled<-list()
+race_id<-unique(ncands_sub$race_ethn)
+imps<-unique(ncands_sub$.imp)
+index<-1
+for(i in 1:imps){
+  for(r in 1:length(race_id)){
+    temp<-ncands_sub %>% 
+      filter(year>2011) 
+    temp<-temp %>% 
+      filter(race_ethn == race_id[r])
+    temp<-temp %>% 
+      filter(.imp==i)
+    temp<-temp %>% 
+      group_by(.imp, age, race_ethn) %>% 
+      summarise(var = sum(var), pop = sum(pop)) %>% 
+      ungroup()
+    sub_tables_pooled[[index]]<-make_life_table(temp)
+    index<-index+1
+  }
+}
+sub_tables_pooled<-bind_rows(sub_tables_pooled)
+
+ts<-subst_tables_c %>% 
   ggplot(aes(x=year, y = c_mn, 
-             fill = race_ethn,
-             group = race_ethn,
+             color = race_ethn,
              ymin = cmin, ymax = cmax)) +
-  geom_ribbon(alpha = .5) + 
-  geom_line(aes(color = race_ethn)) + 
+  geom_line() + 
+  geom_point() + 
   xlab("Year") + 
-  ylab("Proportion with substantiation before age 18")
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(A)") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+age<-sub_tables_pooled %>% 
+  ggplot(aes(x=age, y = q, 
+             color = race_ethn)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Age") + 
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(B)") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(ts, age)
+
 ```
 
+The shape of the age-specific substantiation risk curve, shown in Figure \@ref(fig:sub) panel B is similar to the shape of the age-specific risk curve (Figure \@ref(fig:inv)). This is unsurprising, as an investigation is a necessary condition for a substantiation. Unlike with investigations, however, AI/AN children are at higher risk of substantiation at all ages. During their first year, AI/AN children are 1.7 times more likely than white children to experience a substantiated report. At age 17, AI/AN children are 1.26 times more likely than white children to experience a first substantiated report. 
 
-## $P(FC)$ using AFCARS
+```{r subCond, fig.cap="Age-specific risk of first substantiation, conditional on prior maltreatment report, 2012 - 2016 pooled period life tables"}
 
-```{r fctables.pop}
+## p(sub|inv) = p(inv, sub)/p(inv)
+## p(sub) / p(inv)
+ncands_sub_inv<-sub_tables_pooled %>%
+  mutate(sub_inv = q / investigation_tables_pooled$q)
+
+ggplot(ncands_sub_inv,
+         aes(x = age, y = sub_inv, color = race_ethn)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Age") + 
+  ylab("Risk of event")
+```
+
+Figure \@ref(fig:subCond) shows the age-specific probability of a first maltreatment report substantiation, conditional on having a prior maltreatment report (inclusive of a first report). AI/AN children are substantially more likely than white children to have a substantiated maltreatment report than white children. Among AI/AN infants that have been investigated by a child welfare agency, about 41 percent will be substantiated. For white infants, about 36 percent that receive an investigation will be subtantiated. The gap is largest at age 9, when AI/AN children with a report are 1.6 times more likely than white children with a report to experience a substantiated report.  
+
+# Foster Care
+
+Next, I describe the lifetime and age-specific risk of foster care placement, along with trends in risk over time. Figure \@ref(fig:fc) panel A shows changes in lifetime risk of foster care placement for AI/AN and white children between 2003 and 2016. Like substantiation risk, both groups saw an increase between 2003 and 2005, a sharp decline between 2005 and 2009, and a gradual increase between 2009 and 2016. AI/AN children's lifetime foster care risk was at its highest in 2005, at 0.14, and at its lowest in 2009, at 0.89. In 2016, AI/AN lifetime foster care risk was 0.12. In 2016, AI/AN children's lifetime risk of ever entering foster care was 2.30 times higher than white children's risk.
+
+```{r fc,  fig.pos="h", out.extra = '', fig.cap = "(A): Risk of ever entering foster care by age 18, 2003 - 2016 annual period life table. (B): Age-specific risk of first foster care entry, 2012 - 2016 pooled period life table"}
 fc_tables<-list()
 years<-unique(afcars_fc$year)
-race_ethn<-unique(afcars_fc$race_ethn)
+race_id<-unique(afcars_fc$race_ethn)
 index<-1
-for(i in 1:length(afcars_fc$.imp)){
+for(i in 1:length(unique(afcars_fc$.imp))){
   for(j in 1:length(years)){
-    for(r in 1:length(race_ethn)){
-      temp<-afcars_fc %>% 
+    for(r in 1:length(race_id)){
+      temp<-afcars_fc %>%
         filter(year==years[j])
-      temp<-temp %>% 
-        filter(race_ethn == race_ethn[r])
-      temp<-temp %>% 
+      temp<-temp %>%
+        filter(race_ethn == race_id[r])
+      temp<-temp %>%
         filter(.imp==i)
       fc_tables[[index]]<-make_life_table(temp)
       index<-index+1
@@ -191,91 +329,194 @@ for(i in 1:length(afcars_fc$.imp)){
 }
 fc_tables<-bind_rows(fc_tables)
 
-fc_tables_c<-fc_tables %>% 
-  filter(age==17) %>% 
-  group_by(year, race_ethn) %>% 
+fc_tables_c<-fc_tables %>%
+  filter(age==17) %>%
+  group_by(year, race_ethn) %>%
   summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
 
-fc_tables_c %>% 
+fc_tables_pooled<-list()
+race_id<-unique(afcars_fc$race_ethn)
+imps<-unique(afcars_fc$.imp)
+index<-1
+for(i in 1:imps){
+  for(r in 1:length(race_id)){
+    temp<-afcars_fc %>% 
+      filter(year>2011) 
+    temp<-temp %>% 
+      filter(race_ethn == race_id[r])
+    temp<-temp %>% 
+      filter(.imp==i)
+    temp<-temp %>% 
+      group_by(.imp, age, race_ethn) %>% 
+      summarise(var = sum(var), pop = sum(pop)) %>% 
+      ungroup()
+    fc_tables_pooled[[index]]<-make_life_table(temp)
+    index<-index+1
+  }
+}
+fc_tables_pooled<-bind_rows(fc_tables_pooled)
+
+ts<-fc_tables_c %>% 
   ggplot(aes(x=year, y = c_mn, 
-             fill = race_ethn,
-             group = race_ethn,
+             color = race_ethn,
              ymin = cmin, ymax = cmax)) +
-  geom_ribbon(alpha = .5) + 
-  geom_line(aes(color = race_ethn)) + 
+  geom_line() + 
+  geom_point() + 
   xlab("Year") + 
-  ylab("Proportion ever in foster care before age 18")
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(A)") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+age<-fc_tables_pooled %>% 
+  ggplot(aes(x=age, y = q, 
+             color = race_ethn)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Age") + 
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(B)") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(ts, age)
+
+
 ```
 
-## $P(investigation , entered)$ using afcars
+Figure \@ref(fig:fc) panel B shows the age-specific risk of a fist foster care entry using 2012 - 2016 pooled AFCARS data. AI/AN children are at markedly higher risk of entering foster care than are white children throughout childhood. In infancy, about 2.7 percent of AI/AN children enter foster care, compared to about 1 percent of white children. At age 17, inequalities persist despite relatively low event risk: AI/AN children are 1.7 times more likely to experience a first foster care entry at 17 than are their white peers. 
 
 ```{r}
+## P(FC,inv)
 fc_post_inv_tables<-list()
 years<-unique(afcars_fc_inv$year)
-race_ethn<-unique(afcars_fc_inv$race_ethn)
+race_id<-unique(afcars_fc_inv$race_ethn)
 index<-1
-for(i in 1:length(afcars_fc_inv$.imp)){
+for(i in 1:length(unique(afcars_fc_inv$.imp))){
+  for(r in 1:length(race_id)){
+    temp<-afcars_fc_inv %>%
+      filter(year>2011)
+    temp<-temp %>% 
+      filter(race_ethn == race_id[r])
+    temp<-temp %>% 
+      filter(.imp==i)
+    temp<-temp %>% 
+      group_by(.imp, age, race_ethn) %>% 
+      summarise(var = sum(var), pop = sum(pop)) %>% 
+      ungroup()
+    fc_post_inv_tables[[index]]<-make_life_table(temp)
+    index<-index+1
+  }
+}
+
+# P(A,B)
+fc_post_inv_tables<-bind_rows(fc_post_inv_tables)
+
+# P(A|B) = P(A,B)/P(B)
+fc_cond_inv<-fc_post_inv_tables %>%
+  mutate(fc_inv = q / investigation_tables_pooled$q)
+
+ggplot(fc_cond_inv,
+       aes(x = age, y = fc_inv, 
+           color = race_ethn)) + 
+  geom_line()
+```
+
+# Placement outside of kin, native foster homes
+
+The Indian Child Welfare Act, among other protections including tribal jurisdiction over AI/AN children, guarantees native children in foster care the right to be in a placement that preserves their heritage *CITE MEASURING COMPLIANCE*. Preferences are guaranteed for kin, and non-kin members of the child's nation. Otherwise, AI/AN foster families from outside of the child's tribe or nation are to be preferred. Placement into a non-native non-kin placement is to be considered a last resort. 
+
+Figure \@ref(fig:icwa) panel A shows the lifetime risk of ever being placed into a non-kin non-native foster placement for AI/AN children over time. Note that AFCARS only records the final placement setting for each child in a reporting year, so these estimates are likely negatively biased. AI/AN children's lifetime risk of ever being placed in a non-kin non-native foster placement has declined over time, from a peak of 0.12 in 2005 to a low of 0.08 in 2016. Panel B displays the age-specific risk of non-kin, non-native foster placement for AI/AN children. As with other foster placements, risk is highest in infancy, and declines as children age. **CALL OUT CONDITIONAL PROB FIG** 
+
+```{r icwa,  fig.pos="h", out.extra = '', fig.cap = "(A): AI/AN risk of ever being placed in non-kin non-AI/AN caretaker foster care by age 18, 2003 - 2016 annual period life table. (B): AI/AN Age-specific risk of being placed in non-kin non-AI/AN caretaker foster care, 2012 - 2016 pooled period life table"}
+icwa_tables<-list()
+years<-unique(afcars_non_icwa$year)
+race_id<-unique(afcars_non_icwa$race_ethn)
+index<-1
+for(i in 1:length(unique(afcars_non_icwa$.imp))){
   for(j in 1:length(years)){
-    for(r in 1:length(race_ethn)){
-      temp<-afcars_fc_inv %>% 
+    for(r in 1:length(race_id)){
+      temp<-afcars_non_icwa %>%
         filter(year==years[j])
-      temp<-temp %>% 
-        filter(race_ethn == race_ethn[r])
-      temp<-temp %>% 
+      temp<-temp %>%
+        filter(race_ethn == race_id[r])
+      temp<-temp %>%
         filter(.imp==i)
-      fc_post_inv_tables[[index]]<-make_life_table(temp)
+      icwa_tables[[index]]<-make_life_table(temp)
       index<-index+1
     }
   }
 }
-fc_post_inv_tables<-bind_rows(fc_post_inv_tables)
+icwa_tables<-bind_rows(icwa_tables)
 
-fc_post_inv_tables_c<-fc_post_inv_tables %>% 
-  filter(age==17) %>% 
-  group_by(year, race_ethn) %>% 
+
+icwa_tables_pooled<-list()
+race_id<-unique(afcars_non_icwa$race_ethn)
+imps<-unique(afcars_non_icwa$.imp)
+index<-1
+for(i in 1:imps){
+  for(r in 1:length(race_id)){
+    temp<-afcars_non_icwa %>% 
+      filter(year>2011) 
+    temp<-temp %>% 
+      filter(race_ethn == race_id[r])
+    temp<-temp %>% 
+      filter(.imp==i)
+    temp<-temp %>% 
+      group_by(.imp, age, race_ethn) %>% 
+      summarise(var = sum(var), pop = sum(pop)) %>% 
+      ungroup()
+    icwa_tables_pooled[[index]]<-make_life_table(temp)
+    index<-index+1
+  }
+}
+icwa_tables_pooled<-bind_rows(icwa_tables_pooled)
+
+
+icwa_tables_c<-icwa_tables %>%
+  filter(age==17) %>%
+  group_by(year, race_ethn) %>%
   summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
 
-fc_post_inv_tables_c %>% 
+ts<-icwa_tables_c %>% 
   ggplot(aes(x=year, y = c_mn, 
-             fill = race_ethn,
-             group = race_ethn,
              ymin = cmin, ymax = cmax)) +
-  geom_ribbon(alpha = .5) + 
-  geom_line(aes(color = race_ethn)) + 
+  geom_line() + 
+  geom_point() + 
   xlab("Year") + 
-  ylab("Proportion with foster care entry after screened-in report")
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(A)") + 
+  theme(plot.title = element_text(hjust = 0.5))
 
+age<-icwa_tables_pooled %>% 
+  ggplot(aes(x=age, y = q)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Age") + 
+  ylab("Risk of event") + 
+  labs(fill = "", color = "",
+       title = "(B)") + 
+  theme(plot.title = element_text(hjust = 0.5))
 
+grid.arrange(ts, age)
 ```
 
+# Termination of parental rights
 
-RECALL THAT
-
-\[P(A|B) = \frac{P(A,B)}{P(B)}\]
-
-ALSO, BAYES THEOREM
-
-\[P(B|A) = \frac{P(A|B)P(B)}{P(A)}\]
-
-for $A=FC$ and $B=investigation$, we wish to obtain $P(A|B)$. We obtain differing measurements of $P(A,B)$ from two datasets. I'll calculate each and compare. 
-
-
-
-## p(tpr)
-
-```{r}
+```{r tprTS,  fig.pos="h", out.extra = '', fig.cap="Risk of termination of parental rights while in foster care before age 18, 2003 - 2016 period life table estimates"}
 tpr_tables<-list()
 years<-unique(afcars_tpr$year)
-race_ethn<-unique(afcars_tpr$race_ethn)
+race_id<-unique(afcars_tpr$race_ethn)
 index<-1
-for(i in 1:length(afcars_tpr$.imp)){
+for(i in 1:length(unique(afcars_tpr$.imp))){
   for(j in 1:length(years)){
-    for(r in 1:length(race_ethn)){
-      temp<-afcars_tpr %>% 
+    for(r in 1:length(race_id)){
+      temp<-afcars_tpr %>%
         filter(year==years[j])
-      temp<-temp %>% 
-        filter(race_ethn == race_ethn[r])
-      temp<-temp %>% 
+      temp<-temp %>%
+        filter(race_ethn == race_id[r])
+      temp<-temp %>%
         filter(.imp==i)
       tpr_tables[[index]]<-make_life_table(temp)
       index<-index+1
@@ -284,62 +525,36 @@ for(i in 1:length(afcars_tpr$.imp)){
 }
 tpr_tables<-bind_rows(tpr_tables)
 
-tpr_tables_c<-tpr_tables %>% 
-  filter(age==17) %>% 
-  group_by(year, race_ethn) %>% 
+tpr_tables_c<-tpr_tables %>%
+  filter(age==17) %>%
+  group_by(year, race_ethn) %>%
   summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
 
-tpr_tables_c %>% 
-  ggplot(aes(x=year, y = c_mn, 
+tpr_tables_c %>%
+  ggplot(aes(x=year, y = c_mn,
              fill = race_ethn,
              group = race_ethn,
              ymin = cmin, ymax = cmax)) +
-  geom_ribbon(alpha = .5) + 
-  geom_line(aes(color = race_ethn)) + 
-  xlab("Year") + 
-  ylab("Proportion with parental rights terminated")
-```
-
-## P(sub|inv)
-
-```{r}
-
-## p(sub|inv) = p(inv|sub) * p(sub) / p(inv) =
-## p(sub) / p(inv)
-ncands_sub_inv<-subst_tables %>% 
-  mutate(sub_inv = q / investigation_tables$q)
-
-ggplot(ncands_sub_inv %>% 
-         filter(year==2016),
-         aes(x = age, y = sub_inv, color = race_ethn)) + 
-  geom_line()
+  geom_ribbon(alpha = .5) +
+  geom_line(aes(color = race_ethn)) +
+  xlab("Year") +
+  ylab("Risk of event") + 
+  labs(fill = "", color = "")
 ```
 
 
-## $P(FC|inv)$
 
-\[p(fc|inv) = \frac{p(fc, inv)}{p(inv)}\]
-
-```{r}
-fc_cond_inv<-fc_post_inv_tables %>% 
-  mutate(fc_inv = q / investigation_tables$q)
-
-ggplot(fc_cond_inv %>% 
-         filter(year==2016),
-         aes(x = age, y = fc_inv, color = race_ethn)) + 
-  geom_line()
-```
 
 ## P(FC|sub)
 ```{r}
 
-fc_cond_sub<-fc_post_inv_tables %>% 
-  mutate(fc_sub = q / subst_tables$q)
-
-ggplot(fc_cond_sub %>% 
-         filter(year==2016),
-         aes(x = age, y = fc_sub, color = race_ethn)) + 
-  geom_line()
+# fc_cond_sub<-fc_post_inv_tables %>%
+#   mutate(fc_sub = q / subst_tables$q)
+# 
+# ggplot(fc_cond_sub %>%
+#          filter(year==2016),
+#          aes(x = age, y = fc_sub, color = race_ethn)) +
+#   geom_line()
 ```
 
 ## P(FC|tpr)
@@ -348,18 +563,18 @@ ggplot(fc_cond_sub %>%
 # \[P(B|A) = \frac{P(A|B)P(B)}{P(A)}\]
 ## P(tpr|fc) = p(fc|tpr)p(tpr) / p(fc)
 ## p(tpr|fc) = p(tpr)/p(fc)
-fc_tpr_fc<-tpr_tables %>% 
-  mutate(tpr_fc = q/ fc_tables$q)
-
-ggplot(fc_tpr_fc %>% 
-         filter(year==2016),
-         aes(x = age, y = tpr_fc, color = race_ethn)) + 
-  geom_line()
+# fc_tpr_fc<-tpr_tables %>%
+#   mutate(tpr_fc = q/ fc_tables$q)
+# 
+# ggplot(fc_tpr_fc %>%
+#          filter(year==2016),
+#          aes(x = age, y = tpr_fc, color = race_ethn)) +
+#   geom_line()
 
 ```
 
 
-NEXT: compare these to raw rates, 
+NEXT: compare these to raw rates,
 
 
 
