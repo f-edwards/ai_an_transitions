@@ -31,7 +31,7 @@ afcars_tpr<-read_csv("./data/afcars_tpr.csv")%>%
   filter(year>=2003, year<2017)%>% 
   filter(age<18) %>% 
   filter(.imp!=0) %>% 
-  filter(race_ethn == "AI/AN" | race_ethn == "White")
+  filter(race_ethn == "AI/AN" | race_ethn == "White") 
 afcars_non_icwa<-read_csv("./data/afcars_non_icwa.csv")%>% 
   filter(year>=2003, year<2017)%>% 
   filter(age<18) %>% 
@@ -127,7 +127,7 @@ VISUALIZE investigation tables
 
 ## $P(substantiation)$
 
-```{r fctables.ncands}
+```{r}
 
 
 ### run lifetable by year
@@ -167,33 +167,6 @@ subst_tables_c %>%
   ylab("Proportion with substantiation before age 18")
 ```
 
-## $P(subst|inv)$
-
-of all investigated, how many are ever substantiated?
-
-from lifetables:
-
-Because $P(inv|subst)=1$, and we've converted population incidence into annual age-adjusted probability, the ratio of events is the conditional probability
-
-\[P(subst|inv) = \frac{d_{subst}}{d_{inv}}\]
-
-```{r}
-
-make_conditionals<-function(num, denom){
-  out<-num %>% 
-  select(age, year, d) %>% 
-  rename(d_num = d) %>% 
-  left_join(denom %>% 
-              select(age, year, d) %>% 
-              rename(d_denom = d)) %>% 
-  group_by(year) %>% 
-  summarise(q = sum(d_num)/sum(d_denom))
-  return(out)
-}
-
-sub_inv<-make_conditionals(subst_tables, investigation_tables)
-
-```
 
 ## $P(FC)$ using AFCARS
 
@@ -202,7 +175,7 @@ fc_tables<-list()
 years<-unique(afcars_fc$year)
 race_ethn<-unique(afcars_fc$race_ethn)
 index<-1
-for(i in 1:5){
+for(i in 1:length(afcars_fc$.imp)){
   for(j in 1:length(years)){
     for(r in 1:length(race_ethn)){
       temp<-afcars_fc %>% 
@@ -241,7 +214,7 @@ fc_post_inv_tables<-list()
 years<-unique(afcars_fc_inv$year)
 race_ethn<-unique(afcars_fc_inv$race_ethn)
 index<-1
-for(i in 1:5){
+for(i in 1:length(afcars_fc_inv$.imp)){
   for(j in 1:length(years)){
     for(r in 1:length(race_ethn)){
       temp<-afcars_fc_inv %>% 
@@ -286,16 +259,105 @@ ALSO, BAYES THEOREM
 
 for $A=FC$ and $B=investigation$, we wish to obtain $P(A|B)$. We obtain differing measurements of $P(A,B)$ from two datasets. I'll calculate each and compare. 
 
-## $P(FC|inv)$
+
+
+## p(tpr)
 
 ```{r}
-fc_inv<-make_conditionals(fc_tables, investigation_tables)
-fc_sub<-make_conditionals(fc_tables, subst_tables)
-fc_ncands_inv<-make_conditionals(ncands_fc_tables, 
-                                 investigation_tables)
-fc_ncands_subst<-make_conditionals(ncands_fc_tables, 
-                                 subst_tables)
+tpr_tables<-list()
+years<-unique(afcars_tpr$year)
+race_ethn<-unique(afcars_tpr$race_ethn)
+index<-1
+for(i in 1:length(afcars_tpr$.imp)){
+  for(j in 1:length(years)){
+    for(r in 1:length(race_ethn)){
+      temp<-afcars_tpr %>% 
+        filter(year==years[j])
+      temp<-temp %>% 
+        filter(race_ethn == race_ethn[r])
+      temp<-temp %>% 
+        filter(.imp==i)
+      tpr_tables[[index]]<-make_life_table(temp)
+      index<-index+1
+    }
+  }
+}
+tpr_tables<-bind_rows(tpr_tables)
+
+tpr_tables_c<-tpr_tables %>% 
+  filter(age==17) %>% 
+  group_by(year, race_ethn) %>% 
+  summarise(c_mn = mean(c), cmax = max(c), cmin = min(c))
+
+tpr_tables_c %>% 
+  ggplot(aes(x=year, y = c_mn, 
+             fill = race_ethn,
+             group = race_ethn,
+             ymin = cmin, ymax = cmax)) +
+  geom_ribbon(alpha = .5) + 
+  geom_line(aes(color = race_ethn)) + 
+  xlab("Year") + 
+  ylab("Proportion with parental rights terminated")
 ```
+
+## P(sub|inv)
+
+```{r}
+
+## p(sub|inv) = p(inv|sub) * p(sub) / p(inv) =
+## p(sub) / p(inv)
+ncands_sub_inv<-subst_tables %>% 
+  mutate(sub_inv = q / investigation_tables$q)
+
+ggplot(ncands_sub_inv %>% 
+         filter(year==2016),
+         aes(x = age, y = sub_inv, color = race_ethn)) + 
+  geom_line()
+```
+
+
+## $P(FC|inv)$
+
+\[p(fc|inv) = \frac{p(fc, inv)}{p(inv)}\]
+
+```{r}
+fc_cond_inv<-fc_post_inv_tables %>% 
+  mutate(fc_inv = q / investigation_tables$q)
+
+ggplot(fc_cond_inv %>% 
+         filter(year==2016),
+         aes(x = age, y = fc_inv, color = race_ethn)) + 
+  geom_line()
+```
+
+## P(FC|sub)
+```{r}
+
+fc_cond_sub<-fc_post_inv_tables %>% 
+  mutate(fc_sub = q / subst_tables$q)
+
+ggplot(fc_cond_sub %>% 
+         filter(year==2016),
+         aes(x = age, y = fc_sub, color = race_ethn)) + 
+  geom_line()
+```
+
+## P(FC|tpr)
+```{r}
+### use bayes' rule because p(fc|tpr)=1
+# \[P(B|A) = \frac{P(A|B)P(B)}{P(A)}\]
+## P(tpr|fc) = p(fc|tpr)p(tpr) / p(fc)
+## p(tpr|fc) = p(tpr)/p(fc)
+fc_tpr_fc<-tpr_tables %>% 
+  mutate(tpr_fc = q/ fc_tables$q)
+
+ggplot(fc_tpr_fc %>% 
+         filter(year==2016),
+         aes(x = age, y = tpr_fc, color = race_ethn)) + 
+  geom_line()
+
+```
+
 
 NEXT: compare these to raw rates, 
 
