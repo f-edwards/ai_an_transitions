@@ -40,9 +40,6 @@ state.fips<-state.fips %>%
   distinct() %>% 
   rename(staterr = abb)
 
-zz <- file("all.Rout", open = "wt")
-sink(zz)
-sink(zz, type = "message")
 ### attach stfcid
 ncands<-ncands %>%
   left_join(ncands_xwalk)
@@ -55,7 +52,9 @@ ncands<-ncands %>%
 ncands_first<-ncands %>%
   arrange(.imp, rptdt) %>% 
   group_by(.imp, stfcid) %>%
-  slice(1)
+  slice(1) 
+
+ncands_first<-ncands_first %>% 
   ungroup() %>%
   mutate(year = year(rptdt))
 
@@ -89,13 +88,6 @@ afcars_first <- afcars %>%
   slice(1) %>% 
   ungroup()
 
-sink("log.txt")
-print("afcars_first length")
-print(nrow(afcars_first))
-print("unique fcid")
-print(length(unique(afcars$stfcid)))
-sink()
-
 afcars_first_nat<-afcars_first %>% 
   group_by(.imp, age, race_ethn, year) %>% 
   summarise(var = n()) %>% 
@@ -107,15 +99,9 @@ afcars_inv<-afcars_first %>%
   left_join(ncands_xwalk %>% 
               select(stfcid, rptdt) %>% 
               arrange(rptdt) %>% 
+              group_by(stfcid) %>% 
               slice(1) %>% 
               mutate(ncands_inv = T))
-
-sink("log2.txt")
-print("afcars_inv post join length")
-print(nrow(afcars_inv))
-print("unique ids")
-print(length(unique(afcars_inv$stfcid)))
-sink()
 
 afcars_inv<-afcars_inv %>% 
   mutate(rpt_year = year(rptdt)) %>% 
@@ -133,7 +119,7 @@ afcars_inv_nat<-afcars_inv %>%
   ungroup() %>%
   write_csv("./data/afcars_fc_post_inv.csv")
 
-afcars_sub<-afars_first %>% 
+afcars_sub<-afcars_first %>% 
   left_join(ncands_first_subst %>% 
               select(.imp, stfcid, rptdt)) %>%
   mutate(rptyr=year(rptdt)) %>% 
@@ -181,23 +167,3 @@ afcars_icwa_nat<-afcars_icwa %>%
   ungroup() %>%
   write_csv("./data/afcars_non_icwa.csv")
 
-# pop_nat<-pop %>%
-#   filter(race_ethn=="AI/AN" | race_ethn=="White") %>%
-#   group_by(year, age, race_ethn) %>%
-#   summarise(pop = sum(pop))
-# 
-# write.csv(pop_nat, "./data/pop_nat.csv", row.names=F)
-# 
-# ncands_aian<-ncands %>%
-#   filter(race_ethn=="AI/AN" | race_ethn=="White") %>%
-#   filter(.imp==1) %>%
-#   write.csv("./data/ncands_subset.csv", row.names=F)
-# 
-# afcars_aian<-afcars %>%
-#   filter(race_ethn=="AI/AN" | race_ethn=="White") %>%
-#   filter(.imp==1) %>%
-#   write.csv("./data/afcars_subset.csv", row.names=F)
-sink(type="message")
-sink()
-q("no")
-  
