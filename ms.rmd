@@ -14,36 +14,37 @@ knitr::opts_chunk$set(echo = F, warning = F, message = F)
 library(tidyverse)
 library(lubridate)
 library(gridExtra)
+library(bookdown)
 source("lifetable.r")
 theme_set(theme_bw())
 
 ncands_inv<-read_csv("./data/ncands_first_inv.csv") %>% 
-  filter(year>=2003, year<2017) %>% 
+  filter(year>=2011, year<2017) %>% 
   filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 ncands_sub<-read_csv("./data/ncands_first_sub.csv")%>% 
-  filter(year>=2003, year<2017)%>% 
+  filter(year>=2011, year<2017)%>% 
   filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_fc<-read_csv("./data/afcars_first_fc.csv")%>% 
-  filter(year>=2003, year<2017)%>% 
+  filter(year>=2011, year<2017)%>% 
   filter(age<18) %>%   
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_tpr<-read_csv("./data/afcars_tpr.csv")%>% 
-  filter(year>=2003, year<2017)%>% 
+  filter(year>=2011, year<2017)%>% 
   filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White") 
 afcars_non_icwa<-read_csv("./data/afcars_non_icwa.csv")%>% 
-  filter(year>=2003, year<2017)%>% 
+  filter(year>=2011, year<2017)%>% 
   filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
 afcars_fc_inv<-read_csv("./data/afcars_fc_post_inv.csv")%>% 
-  filter(year>=2003, year<2017)%>% 
+  filter(year>=2011, year<2017)%>% 
   filter(age<18) %>% 
   filter(.imp!=0) %>% 
   filter(race_ethn == "AI/AN" | race_ethn == "White")
@@ -199,6 +200,8 @@ age<-investigation_tables_pooled %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 grid.arrange(ts, age)
+p_out<-arrangeGrob(ts, age)
+ggsave("./vis/aian_inv.pdf", p_out)
 ```
 
 Changes in risk of ever-experiencing a maltreatment investigation over time are displayed in Figure \@ref(fig:inv), panel A. Risk for AI/AN children is indicated with the pink line, and white children with a blue line. Underlying risk of maltreatment investigations has shifted for both groups over between 2003 and 2016. For AI/AN children, risk has declined over time from a peak of 0.38 in 2003 to 0.34 in 2016. During this period, risk was at its lowest in 2010 (0.32). Inequality in risk between AI/AN and white children narrowed substantially over this period. In 2003, AI/AN children were 1.37 times more likely than white children to have a screened-in report. In 2016, were 1.05 times more likely than white children to have a screened-in report.
@@ -282,7 +285,8 @@ age<-sub_tables_pooled %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 grid.arrange(ts, age)
-
+p_out<-arrangeGrob(ts, age)
+ggsave("./vis/aian_sub.pdf", p_out)
 ```
 
 The shape of the age-specific substantiation risk curve, shown in Figure \@ref(fig:sub) panel B is similar to the shape of the age-specific risk curve (Figure \@ref(fig:inv)). This is unsurprising, as an investigation is a necessary condition for a substantiation. Unlike with investigations, however, AI/AN children are at higher risk of substantiation at all ages. During their first year, AI/AN children are 1.7 times more likely than white children to experience a substantiated report. At age 17, AI/AN children are 1.26 times more likely than white children to experience a first substantiated report. 
@@ -294,12 +298,16 @@ The shape of the age-specific substantiation risk curve, shown in Figure \@ref(f
 ncands_sub_inv<-sub_tables_pooled %>%
   mutate(sub_inv = q / investigation_tables_pooled$q)
 
-ggplot(ncands_sub_inv,
+p<-ggplot(ncands_sub_inv,
          aes(x = age, y = sub_inv, color = race_ethn)) +
   geom_line() + 
   geom_point() + 
   xlab("Age") + 
   ylab("Risk of event")
+
+p
+
+ggsave("./vis/aian_sub_inv.pdf", p)
 ```
 
 Figure \@ref(fig:subCond) shows the age-specific probability of a first maltreatment report substantiation, conditional on having a prior maltreatment report (inclusive of a first report). AI/AN children are substantially more likely than white children to have a substantiated maltreatment report than white children. Among AI/AN infants that have been investigated by a child welfare agency, about 41 percent will be substantiated. For white infants, about 36 percent that receive an investigation will be subtantiated. The gap is largest at age 9, when AI/AN children with a report are 1.6 times more likely than white children with a report to experience a substantiated report.  
@@ -380,8 +388,8 @@ age<-fc_tables_pooled %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 grid.arrange(ts, age)
-
-
+p_out<-arrangeGrob(ts, age)
+ggsave("./vis/aian_fc.pdf", p_out)
 ```
 
 Figure \@ref(fig:fc) panel B shows the age-specific risk of a fist foster care entry using 2012 - 2016 pooled AFCARS data. AI/AN children are at markedly higher risk of entering foster care than are white children throughout childhood. In infancy, about 2.7 percent of AI/AN children enter foster care, compared to about 1 percent of white children. At age 17, inequalities persist despite relatively low event risk: AI/AN children are 1.7 times more likely to experience a first foster care entry at 17 than are their white peers. 
@@ -416,10 +424,10 @@ fc_post_inv_tables<-bind_rows(fc_post_inv_tables)
 fc_cond_inv<-fc_post_inv_tables %>%
   mutate(fc_inv = q / investigation_tables_pooled$q)
 
-ggplot(fc_cond_inv,
-       aes(x = age, y = fc_inv, 
-           color = race_ethn)) + 
-  geom_line()
+# ggplot(fc_cond_inv,
+#        aes(x = age, y = fc_inv, 
+#            color = race_ethn)) + 
+#   geom_line()
 ```
 
 # Placement outside of kin, native foster homes
@@ -500,6 +508,8 @@ age<-icwa_tables_pooled %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 grid.arrange(ts, age)
+p_out<-arrangeGrob(ts, age)
+ggsave("./vis/aian_icwa.pdf", p_out)
 ```
 
 # Termination of parental rights

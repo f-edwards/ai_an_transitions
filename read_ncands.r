@@ -47,11 +47,13 @@ state.fips<-state.fips %>%
 ncands_xwalk<-ncands_xwalk %>% 
   left_join(state.fips) %>% 
   filter(afcarsid!="",
-         staterr!="XX") %>% 
+         staterr!="XX") 
+
+ncands_xwalk<-ncands_xwalk%>% 
   mutate(stfcid = paste(fips, afcarsid, sep="")) 
 
 ncands_xwalk<-ncands_xwalk %>% 
-  select(chid, stfcid, rptdt, subyr)
+  select(staterr, chid, stfcid, rptdt, subyr)
 
 write_csv(ncands_xwalk, 
           "~/Projects/ai_an_transitions/data/ncands_xwalk.csv")
