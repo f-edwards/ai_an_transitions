@@ -2,8 +2,6 @@ rm(list=ls()); gc()
 library(tidyverse)
 library(lubridate)
 
-setwd("~/Projects/ai_an_transitions/")
-
 pop<-read_fwf("./data/us.1990_2017.singleages.adjusted.txt",
               fwf_widths(c(4, 2, 2, 3, 2, 1, 1, 1, 2, 8),
                          c("year", "state", "st_fips",
@@ -25,12 +23,12 @@ pop<-pop %>%
   group_by(year, age, race_ethn) %>% 
   summarise(pop = sum(pop))
 
-afcars<-read_csv("./data/afcars_imputed_all_cases.csv",
+afcars<-read_csv("~/Projects/cps_lifetables/data/afcars_imputed_all_cases.csv",
                  col_types = cols(stfcid = "c")) 
 
-ncands<-read_csv("./data/ncands_imputed.csv")
+ncands<-read_csv("~/Projects/cps_lifetables/data/ncands_imputed.csv")
 
-ncands_xwalk<-read_csv("./data/ncands_xwalk.csv",
+ncands_xwalk<-read_csv("~/Projects/ai_an_transitions/data/ncands_xwalk.csv",
                        col_types = cols(stfcid = "c"))
   
 library(maps)
@@ -47,7 +45,8 @@ ncands<-ncands %>%
 ### get needed first events
 
 ncands<-ncands %>%
-  filter(!(is.na(subyr)))
+  filter(!(is.na(subyr))) %>% 
+  mutate(st_chid = paste())
 
 ncands_first<-ncands %>%
   arrange(.imp, rptdt) %>% 
