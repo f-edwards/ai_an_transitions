@@ -1,0 +1,568 @@
+--------------------------------------------------------------------------------
+Codebook for NHGIS data file 'nhgis0053_ds181_2010_state'
+--------------------------------------------------------------------------------
+ 
+Contents
+    - Data Summary
+    - Data Dictionary
+    - Citation and Use
+ 
+Additional documentation on NHGIS data sources is available at: 
+    https://www.nhgis.org/documentation/tabular-data 
+ 
+--------------------------------------------------------------------------------
+Data Summary
+--------------------------------------------------------------------------------
+ 
+Year:             2010
+Geographic level: State
+Dataset:          2010 Census: SF 2a - PCT & HCT Tables [Tracts & Larger Areas]
+   NHGIS code:    2010_SF2a
+   NHGIS ID:      ds181
+Breakdown(s):     Geographic Subarea:
+                     Total area (00)
+                  Race/Ethnicity:
+                     American Indian and Alaska Native alone (300, A01-Z99) (6)
+                     American Indian and Alaska Native alone or in combination with one or more other races (300, A01-Z99) & (100-299) or (300, A01-Z99) or (400-999) (9)
+ 
+Tables:
+ 
+1. Sex by Age
+   Universe:    Total population
+   Source code: PCT3
+   NHGIS code:  LGJ
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Context Fields 
+        GISJOIN:     GIS Join Match Code
+        YEAR:        Data File Year
+        REGIONA:     Region Code
+        DIVISIONA:   Division Code
+        STATE:       State Name
+        STATEA:      State Code
+        COUNTYA:     County Code
+        COUSUBA:     County Subdivision Code
+        PLACEA:      Place Code
+        TRACTA:      Census Tract Code
+        CONCITA:     Consolidated City Code
+        AIANHHA:     American Indian Area/Alaska Native Area/Hawaiian Home Land Code
+        RES_ONLYA:   American Indian Area/Alaska Native Area (Reservation or Statistical Entity Only) Code
+        TRUSTA:      American Indian Reservation with Trust Lands; trust lands only Code
+        AITSCEA:     Tribal Subdivision/Remainder Code
+        TTRACTA:     Tribal Census Tract Code
+        ANRCA:       Alaska Native Regional Corporation Code
+        CBSAA:       Metropolitan Statistical Area/Micropolitan Statistical Area Code
+        METDIVA:     Metropolitan Division Code
+        CSAA:        Combined Statistical Area Code
+        NECTAA:      New England City and Town Area Code
+        NECTADIVA:   New England City and Town Area Division Code
+        CNECTAA:     Combined New England City and Town Area Code
+        CDA:         Congressional District (111th Congress) Code
+        SLDUA:       State Legislative District (Upper Chamber) Code
+        SLDLA:       State Legislative District (Lower Chamber) Code
+        ZCTA5A:      5-Digit ZIP Code Tabulation Area Code
+        SUBMCDA:     Subminor Civil Division Code
+        SDELMA:      School District (Elementary)/Remainder Code
+        SDSECA:      School District (Secondary)/Remainder Code
+        SDUNIA:      School District (Unified)/Remainder Code
+        NAME:        Area Name-Legal/Statistical Area Description (LSAD) Term-Part Indicator
+ 
+Breakdown 1 (AAE):
+    Geographic Subarea: Total area (00)
+    Race/Ethnicity: American Indian and Alaska Native alone (300, A01-Z99) (6)
+ 
+    Table 1:     Sex by Age
+    Universe:    Total population
+    Source code: PCT3
+    NHGIS code:  LGJ
+        LGJAAE001:   Total
+        LGJAAE002:   Male
+        LGJAAE003:   Male: Under 1 year
+        LGJAAE004:   Male: 1 year
+        LGJAAE005:   Male: 2 years
+        LGJAAE006:   Male: 3 years
+        LGJAAE007:   Male: 4 years
+        LGJAAE008:   Male: 5 years
+        LGJAAE009:   Male: 6 years
+        LGJAAE010:   Male: 7 years
+        LGJAAE011:   Male: 8 years
+        LGJAAE012:   Male: 9 years
+        LGJAAE013:   Male: 10 years
+        LGJAAE014:   Male: 11 years
+        LGJAAE015:   Male: 12 years
+        LGJAAE016:   Male: 13 years
+        LGJAAE017:   Male: 14 years
+        LGJAAE018:   Male: 15 years
+        LGJAAE019:   Male: 16 years
+        LGJAAE020:   Male: 17 years
+        LGJAAE021:   Male: 18 years
+        LGJAAE022:   Male: 19 years
+        LGJAAE023:   Male: 20 years
+        LGJAAE024:   Male: 21 years
+        LGJAAE025:   Male: 22 years
+        LGJAAE026:   Male: 23 years
+        LGJAAE027:   Male: 24 years
+        LGJAAE028:   Male: 25 years
+        LGJAAE029:   Male: 26 years
+        LGJAAE030:   Male: 27 years
+        LGJAAE031:   Male: 28 years
+        LGJAAE032:   Male: 29 years
+        LGJAAE033:   Male: 30 years
+        LGJAAE034:   Male: 31 years
+        LGJAAE035:   Male: 32 years
+        LGJAAE036:   Male: 33 years
+        LGJAAE037:   Male: 34 years
+        LGJAAE038:   Male: 35 years
+        LGJAAE039:   Male: 36 years
+        LGJAAE040:   Male: 37 years
+        LGJAAE041:   Male: 38 years
+        LGJAAE042:   Male: 39 years
+        LGJAAE043:   Male: 40 years
+        LGJAAE044:   Male: 41 years
+        LGJAAE045:   Male: 42 years
+        LGJAAE046:   Male: 43 years
+        LGJAAE047:   Male: 44 years
+        LGJAAE048:   Male: 45 years
+        LGJAAE049:   Male: 46 years
+        LGJAAE050:   Male: 47 years
+        LGJAAE051:   Male: 48 years
+        LGJAAE052:   Male: 49 years
+        LGJAAE053:   Male: 50 years
+        LGJAAE054:   Male: 51 years
+        LGJAAE055:   Male: 52 years
+        LGJAAE056:   Male: 53 years
+        LGJAAE057:   Male: 54 years
+        LGJAAE058:   Male: 55 years
+        LGJAAE059:   Male: 56 years
+        LGJAAE060:   Male: 57 years
+        LGJAAE061:   Male: 58 years
+        LGJAAE062:   Male: 59 years
+        LGJAAE063:   Male: 60 years
+        LGJAAE064:   Male: 61 years
+        LGJAAE065:   Male: 62 years
+        LGJAAE066:   Male: 63 years
+        LGJAAE067:   Male: 64 years
+        LGJAAE068:   Male: 65 years
+        LGJAAE069:   Male: 66 years
+        LGJAAE070:   Male: 67 years
+        LGJAAE071:   Male: 68 years
+        LGJAAE072:   Male: 69 years
+        LGJAAE073:   Male: 70 years
+        LGJAAE074:   Male: 71 years
+        LGJAAE075:   Male: 72 years
+        LGJAAE076:   Male: 73 years
+        LGJAAE077:   Male: 74 years
+        LGJAAE078:   Male: 75 years
+        LGJAAE079:   Male: 76 years
+        LGJAAE080:   Male: 77 years
+        LGJAAE081:   Male: 78 years
+        LGJAAE082:   Male: 79 years
+        LGJAAE083:   Male: 80 years
+        LGJAAE084:   Male: 81 years
+        LGJAAE085:   Male: 82 years
+        LGJAAE086:   Male: 83 years
+        LGJAAE087:   Male: 84 years
+        LGJAAE088:   Male: 85 years
+        LGJAAE089:   Male: 86 years
+        LGJAAE090:   Male: 87 years
+        LGJAAE091:   Male: 88 years
+        LGJAAE092:   Male: 89 years
+        LGJAAE093:   Male: 90 years
+        LGJAAE094:   Male: 91 years
+        LGJAAE095:   Male: 92 years
+        LGJAAE096:   Male: 93 years
+        LGJAAE097:   Male: 94 years
+        LGJAAE098:   Male: 95 years
+        LGJAAE099:   Male: 96 years
+        LGJAAE100:   Male: 97 years
+        LGJAAE101:   Male: 98 years
+        LGJAAE102:   Male: 99 years
+        LGJAAE103:   Male: 100 to 104 years
+        LGJAAE104:   Male: 105 to 109 years
+        LGJAAE105:   Male: 110 years and over
+        LGJAAE106:   Female
+        LGJAAE107:   Female: Under 1 year
+        LGJAAE108:   Female: 1 year
+        LGJAAE109:   Female: 2 years
+        LGJAAE110:   Female: 3 years
+        LGJAAE111:   Female: 4 years
+        LGJAAE112:   Female: 5 years
+        LGJAAE113:   Female: 6 years
+        LGJAAE114:   Female: 7 years
+        LGJAAE115:   Female: 8 years
+        LGJAAE116:   Female: 9 years
+        LGJAAE117:   Female: 10 years
+        LGJAAE118:   Female: 11 years
+        LGJAAE119:   Female: 12 years
+        LGJAAE120:   Female: 13 years
+        LGJAAE121:   Female: 14 years
+        LGJAAE122:   Female: 15 years
+        LGJAAE123:   Female: 16 years
+        LGJAAE124:   Female: 17 years
+        LGJAAE125:   Female: 18 years
+        LGJAAE126:   Female: 19 years
+        LGJAAE127:   Female: 20 years
+        LGJAAE128:   Female: 21 years
+        LGJAAE129:   Female: 22 years
+        LGJAAE130:   Female: 23 years
+        LGJAAE131:   Female: 24 years
+        LGJAAE132:   Female: 25 years
+        LGJAAE133:   Female: 26 years
+        LGJAAE134:   Female: 27 years
+        LGJAAE135:   Female: 28 years
+        LGJAAE136:   Female: 29 years
+        LGJAAE137:   Female: 30 years
+        LGJAAE138:   Female: 31 years
+        LGJAAE139:   Female: 32 years
+        LGJAAE140:   Female: 33 years
+        LGJAAE141:   Female: 34 years
+        LGJAAE142:   Female: 35 years
+        LGJAAE143:   Female: 36 years
+        LGJAAE144:   Female: 37 years
+        LGJAAE145:   Female: 38 years
+        LGJAAE146:   Female: 39 years
+        LGJAAE147:   Female: 40 years
+        LGJAAE148:   Female: 41 years
+        LGJAAE149:   Female: 42 years
+        LGJAAE150:   Female: 43 years
+        LGJAAE151:   Female: 44 years
+        LGJAAE152:   Female: 45 years
+        LGJAAE153:   Female: 46 years
+        LGJAAE154:   Female: 47 years
+        LGJAAE155:   Female: 48 years
+        LGJAAE156:   Female: 49 years
+        LGJAAE157:   Female: 50 years
+        LGJAAE158:   Female: 51 years
+        LGJAAE159:   Female: 52 years
+        LGJAAE160:   Female: 53 years
+        LGJAAE161:   Female: 54 years
+        LGJAAE162:   Female: 55 years
+        LGJAAE163:   Female: 56 years
+        LGJAAE164:   Female: 57 years
+        LGJAAE165:   Female: 58 years
+        LGJAAE166:   Female: 59 years
+        LGJAAE167:   Female: 60 years
+        LGJAAE168:   Female: 61 years
+        LGJAAE169:   Female: 62 years
+        LGJAAE170:   Female: 63 years
+        LGJAAE171:   Female: 64 years
+        LGJAAE172:   Female: 65 years
+        LGJAAE173:   Female: 66 years
+        LGJAAE174:   Female: 67 years
+        LGJAAE175:   Female: 68 years
+        LGJAAE176:   Female: 69 years
+        LGJAAE177:   Female: 70 years
+        LGJAAE178:   Female: 71 years
+        LGJAAE179:   Female: 72 years
+        LGJAAE180:   Female: 73 years
+        LGJAAE181:   Female: 74 years
+        LGJAAE182:   Female: 75 years
+        LGJAAE183:   Female: 76 years
+        LGJAAE184:   Female: 77 years
+        LGJAAE185:   Female: 78 years
+        LGJAAE186:   Female: 79 years
+        LGJAAE187:   Female: 80 years
+        LGJAAE188:   Female: 81 years
+        LGJAAE189:   Female: 82 years
+        LGJAAE190:   Female: 83 years
+        LGJAAE191:   Female: 84 years
+        LGJAAE192:   Female: 85 years
+        LGJAAE193:   Female: 86 years
+        LGJAAE194:   Female: 87 years
+        LGJAAE195:   Female: 88 years
+        LGJAAE196:   Female: 89 years
+        LGJAAE197:   Female: 90 years
+        LGJAAE198:   Female: 91 years
+        LGJAAE199:   Female: 92 years
+        LGJAAE200:   Female: 93 years
+        LGJAAE201:   Female: 94 years
+        LGJAAE202:   Female: 95 years
+        LGJAAE203:   Female: 96 years
+        LGJAAE204:   Female: 97 years
+        LGJAAE205:   Female: 98 years
+        LGJAAE206:   Female: 99 years
+        LGJAAE207:   Female: 100 to 104 years
+        LGJAAE208:   Female: 105 to 109 years
+        LGJAAE209:   Female: 110 years and over
+ 
+Breakdown 2 (ACF):
+    Geographic Subarea: Total area (00)
+    Race/Ethnicity: American Indian and Alaska Native alone or in combination with one or more other races (300, A01-Z99) & (100-299) or (300, A01-Z99) or (400-999) (9)
+ 
+    Table 1:     Sex by Age
+    Universe:    Total population
+    Source code: PCT3
+    NHGIS code:  LGJ
+        LGJACF001:   Total
+        LGJACF002:   Male
+        LGJACF003:   Male: Under 1 year
+        LGJACF004:   Male: 1 year
+        LGJACF005:   Male: 2 years
+        LGJACF006:   Male: 3 years
+        LGJACF007:   Male: 4 years
+        LGJACF008:   Male: 5 years
+        LGJACF009:   Male: 6 years
+        LGJACF010:   Male: 7 years
+        LGJACF011:   Male: 8 years
+        LGJACF012:   Male: 9 years
+        LGJACF013:   Male: 10 years
+        LGJACF014:   Male: 11 years
+        LGJACF015:   Male: 12 years
+        LGJACF016:   Male: 13 years
+        LGJACF017:   Male: 14 years
+        LGJACF018:   Male: 15 years
+        LGJACF019:   Male: 16 years
+        LGJACF020:   Male: 17 years
+        LGJACF021:   Male: 18 years
+        LGJACF022:   Male: 19 years
+        LGJACF023:   Male: 20 years
+        LGJACF024:   Male: 21 years
+        LGJACF025:   Male: 22 years
+        LGJACF026:   Male: 23 years
+        LGJACF027:   Male: 24 years
+        LGJACF028:   Male: 25 years
+        LGJACF029:   Male: 26 years
+        LGJACF030:   Male: 27 years
+        LGJACF031:   Male: 28 years
+        LGJACF032:   Male: 29 years
+        LGJACF033:   Male: 30 years
+        LGJACF034:   Male: 31 years
+        LGJACF035:   Male: 32 years
+        LGJACF036:   Male: 33 years
+        LGJACF037:   Male: 34 years
+        LGJACF038:   Male: 35 years
+        LGJACF039:   Male: 36 years
+        LGJACF040:   Male: 37 years
+        LGJACF041:   Male: 38 years
+        LGJACF042:   Male: 39 years
+        LGJACF043:   Male: 40 years
+        LGJACF044:   Male: 41 years
+        LGJACF045:   Male: 42 years
+        LGJACF046:   Male: 43 years
+        LGJACF047:   Male: 44 years
+        LGJACF048:   Male: 45 years
+        LGJACF049:   Male: 46 years
+        LGJACF050:   Male: 47 years
+        LGJACF051:   Male: 48 years
+        LGJACF052:   Male: 49 years
+        LGJACF053:   Male: 50 years
+        LGJACF054:   Male: 51 years
+        LGJACF055:   Male: 52 years
+        LGJACF056:   Male: 53 years
+        LGJACF057:   Male: 54 years
+        LGJACF058:   Male: 55 years
+        LGJACF059:   Male: 56 years
+        LGJACF060:   Male: 57 years
+        LGJACF061:   Male: 58 years
+        LGJACF062:   Male: 59 years
+        LGJACF063:   Male: 60 years
+        LGJACF064:   Male: 61 years
+        LGJACF065:   Male: 62 years
+        LGJACF066:   Male: 63 years
+        LGJACF067:   Male: 64 years
+        LGJACF068:   Male: 65 years
+        LGJACF069:   Male: 66 years
+        LGJACF070:   Male: 67 years
+        LGJACF071:   Male: 68 years
+        LGJACF072:   Male: 69 years
+        LGJACF073:   Male: 70 years
+        LGJACF074:   Male: 71 years
+        LGJACF075:   Male: 72 years
+        LGJACF076:   Male: 73 years
+        LGJACF077:   Male: 74 years
+        LGJACF078:   Male: 75 years
+        LGJACF079:   Male: 76 years
+        LGJACF080:   Male: 77 years
+        LGJACF081:   Male: 78 years
+        LGJACF082:   Male: 79 years
+        LGJACF083:   Male: 80 years
+        LGJACF084:   Male: 81 years
+        LGJACF085:   Male: 82 years
+        LGJACF086:   Male: 83 years
+        LGJACF087:   Male: 84 years
+        LGJACF088:   Male: 85 years
+        LGJACF089:   Male: 86 years
+        LGJACF090:   Male: 87 years
+        LGJACF091:   Male: 88 years
+        LGJACF092:   Male: 89 years
+        LGJACF093:   Male: 90 years
+        LGJACF094:   Male: 91 years
+        LGJACF095:   Male: 92 years
+        LGJACF096:   Male: 93 years
+        LGJACF097:   Male: 94 years
+        LGJACF098:   Male: 95 years
+        LGJACF099:   Male: 96 years
+        LGJACF100:   Male: 97 years
+        LGJACF101:   Male: 98 years
+        LGJACF102:   Male: 99 years
+        LGJACF103:   Male: 100 to 104 years
+        LGJACF104:   Male: 105 to 109 years
+        LGJACF105:   Male: 110 years and over
+        LGJACF106:   Female
+        LGJACF107:   Female: Under 1 year
+        LGJACF108:   Female: 1 year
+        LGJACF109:   Female: 2 years
+        LGJACF110:   Female: 3 years
+        LGJACF111:   Female: 4 years
+        LGJACF112:   Female: 5 years
+        LGJACF113:   Female: 6 years
+        LGJACF114:   Female: 7 years
+        LGJACF115:   Female: 8 years
+        LGJACF116:   Female: 9 years
+        LGJACF117:   Female: 10 years
+        LGJACF118:   Female: 11 years
+        LGJACF119:   Female: 12 years
+        LGJACF120:   Female: 13 years
+        LGJACF121:   Female: 14 years
+        LGJACF122:   Female: 15 years
+        LGJACF123:   Female: 16 years
+        LGJACF124:   Female: 17 years
+        LGJACF125:   Female: 18 years
+        LGJACF126:   Female: 19 years
+        LGJACF127:   Female: 20 years
+        LGJACF128:   Female: 21 years
+        LGJACF129:   Female: 22 years
+        LGJACF130:   Female: 23 years
+        LGJACF131:   Female: 24 years
+        LGJACF132:   Female: 25 years
+        LGJACF133:   Female: 26 years
+        LGJACF134:   Female: 27 years
+        LGJACF135:   Female: 28 years
+        LGJACF136:   Female: 29 years
+        LGJACF137:   Female: 30 years
+        LGJACF138:   Female: 31 years
+        LGJACF139:   Female: 32 years
+        LGJACF140:   Female: 33 years
+        LGJACF141:   Female: 34 years
+        LGJACF142:   Female: 35 years
+        LGJACF143:   Female: 36 years
+        LGJACF144:   Female: 37 years
+        LGJACF145:   Female: 38 years
+        LGJACF146:   Female: 39 years
+        LGJACF147:   Female: 40 years
+        LGJACF148:   Female: 41 years
+        LGJACF149:   Female: 42 years
+        LGJACF150:   Female: 43 years
+        LGJACF151:   Female: 44 years
+        LGJACF152:   Female: 45 years
+        LGJACF153:   Female: 46 years
+        LGJACF154:   Female: 47 years
+        LGJACF155:   Female: 48 years
+        LGJACF156:   Female: 49 years
+        LGJACF157:   Female: 50 years
+        LGJACF158:   Female: 51 years
+        LGJACF159:   Female: 52 years
+        LGJACF160:   Female: 53 years
+        LGJACF161:   Female: 54 years
+        LGJACF162:   Female: 55 years
+        LGJACF163:   Female: 56 years
+        LGJACF164:   Female: 57 years
+        LGJACF165:   Female: 58 years
+        LGJACF166:   Female: 59 years
+        LGJACF167:   Female: 60 years
+        LGJACF168:   Female: 61 years
+        LGJACF169:   Female: 62 years
+        LGJACF170:   Female: 63 years
+        LGJACF171:   Female: 64 years
+        LGJACF172:   Female: 65 years
+        LGJACF173:   Female: 66 years
+        LGJACF174:   Female: 67 years
+        LGJACF175:   Female: 68 years
+        LGJACF176:   Female: 69 years
+        LGJACF177:   Female: 70 years
+        LGJACF178:   Female: 71 years
+        LGJACF179:   Female: 72 years
+        LGJACF180:   Female: 73 years
+        LGJACF181:   Female: 74 years
+        LGJACF182:   Female: 75 years
+        LGJACF183:   Female: 76 years
+        LGJACF184:   Female: 77 years
+        LGJACF185:   Female: 78 years
+        LGJACF186:   Female: 79 years
+        LGJACF187:   Female: 80 years
+        LGJACF188:   Female: 81 years
+        LGJACF189:   Female: 82 years
+        LGJACF190:   Female: 83 years
+        LGJACF191:   Female: 84 years
+        LGJACF192:   Female: 85 years
+        LGJACF193:   Female: 86 years
+        LGJACF194:   Female: 87 years
+        LGJACF195:   Female: 88 years
+        LGJACF196:   Female: 89 years
+        LGJACF197:   Female: 90 years
+        LGJACF198:   Female: 91 years
+        LGJACF199:   Female: 92 years
+        LGJACF200:   Female: 93 years
+        LGJACF201:   Female: 94 years
+        LGJACF202:   Female: 95 years
+        LGJACF203:   Female: 96 years
+        LGJACF204:   Female: 97 years
+        LGJACF205:   Female: 98 years
+        LGJACF206:   Female: 99 years
+        LGJACF207:   Female: 100 to 104 years
+        LGJACF208:   Female: 105 to 109 years
+        LGJACF209:   Female: 110 years and over
+ 
+--------------------------------------------------------------------------------
+Citation and Use of NHGIS Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* REDISTRIBUTION: You will not redistribute the data without permission.
+
+  You may publish a subset of the data to meet journal requirements for accessing 
+  data related to a particular publication. Contact us for permission for any other 
+  redistribution; we will consider requests for free and commercial redistribution.
+
+* CITATION: You will cite NHGIS appropriately.
+
+    * Publications and research reports employing NHGIS data (either tabular or GIS) 
+      should include the following citation:
+
+        Steven Manson, Jonathan Schroeder, David Van Riper, Tracy Kugler, and Steven Ruggles. 
+        IPUMS National Historical Geographic Information System: Version 15.0 
+        [dataset]. Minneapolis, MN: IPUMS. 2020. 
+        http://doi.org/10.18128/D050.V15.0
+
+    * Publications and research reports employing school attendance areas data 
+      (either tabular or GIS) must cite it appropriately. The citation should 
+      include the following:
+
+        The College of William and Mary and the Minnesota Population Center.
+        School Attendance Boundary Information System (SABINS): Version 1.0.
+        Minneapolis, MN: University of Minnesota 2011.
+
+    * For policy briefs, online resources, or articles in the popular press, we 
+      recommend that you cite the use of NHGIS data as follows:
+
+        IPUMS NHGIS, University of Minnesota, www.nhgis.org.
+
+    * If possible, citations involving school attendance areas should also include
+      the URL for the SABINS site:
+
+        http://www.sabinsdata.org/.
+
+These terms of use are a legally binding agreement. You can use the data only in 
+accordance with these terms, and any other use is a violation of the agreement. 
+Violations may result in revocation of the agreement and prohibition from using other 
+IPUMS data. If IPUMS or our partners are harmed from your violation, you are 
+responsible for all damages, including reasonable attorney's fees and expenses.
+        
+In addition, we request that users send us a copy of any publications, research
+reports, or educational material making use of the data or documentation.
+
+Send electronic material to: nhgis@umn.edu
+
+Printed matter should be sent to:
+
+    IPUMS NHGIS
+    Institute for Social Research and Data Innovation
+    University of Minnesota
+    50 Willey Hall
+    225 19th Ave S
+    Minneapolis, MN 55455
