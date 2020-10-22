@@ -27,6 +27,101 @@ pop<-pop %>%
   ungroup() %>%
   mutate(st_fips = as.numeric(st_fips))
 
+### read in AIAN alone or in combination 2010 census data by state
+pop_alone_comb<-read_csv("./data/nhgis0053_ds181_2010_state.csv") %>% 
+  select(YEAR, STATE, STATEA,
+         LGJAAE003:LGJAAE021, ## male 0 - 18 AIAN alone
+         LGJAAE107:LGJAAE125, ## female 0 - 18 AIAN alone
+         LGJACF003:LGJACF021, ## male 0-18 AIAN alone or in comb
+         LGJACF107:LGJACF125 ## female 0-18 AIAN alone or in comb
+         )
+
+pop_alone_m<-pop_alone_comb %>% 
+  select(YEAR, STATE, STATEA,
+         LGJAAE003:LGJAAE021) %>% 
+  pivot_longer(cols = LGJAAE003:LGJAAE021,
+               names_to = "age",
+               values_to = "pop_alone") %>% 
+  mutate(age = substr(age, 7, 9),
+         age = as.numeric(age) - 3,
+         sex = "M")
+
+pop_alone_f<-pop_alone_comb %>% 
+  select(YEAR, STATE, STATEA,
+         LGJAAE107:LGJAAE125) %>% 
+  pivot_longer(cols = LGJAAE107:LGJAAE125,
+               names_to = "age",
+               values_to = "pop_alone") %>% 
+  mutate(age = substr(age, 7, 9),
+         age = as.numeric(age) - 107,
+         sex = "F")
+
+pop_alone_comb_m<-pop_alone_comb %>% 
+  select(YEAR, STATE, STATEA,
+         LGJACF003:LGJACF021) %>% 
+  pivot_longer(cols = LGJACF003:LGJACF021,
+               names_to = "age",
+               values_to = "pop_alone_comb") %>% 
+  mutate(age = substr(age, 7, 9),
+         age = as.numeric(age) - 3,
+         sex = "M")
+
+pop_alone_comb_f<-pop_alone_comb %>% 
+  select(YEAR, STATE, STATEA,
+         LGJACF107:LGJACF125) %>% 
+  pivot_longer(cols = LGJACF107:LGJACF125,
+               names_to = "age",
+               values_to = "pop_alone_comb") %>% 
+  mutate(age = substr(age, 7, 9),
+         age = as.numeric(age) - 107,
+         sex = "F")
+
+pop_alone_comb<-pop_alone_m %>% 
+  bind_rows(pop_alone_f) %>% 
+  left_join(pop_alone_comb_f %>% 
+              bind_rows(pop_alone_comb_m)) %>% 
+  filter(STATEA!=72) %>% 
+  mutate(st_fips = as.numeric(STATEA)) %>% 
+  select(-STATE,-STATEA, -YEAR) 
+  
+pop_alone_comb<-pop_alone_comb %>% 
+  pivot_wider(id_cols = c(st_fips, age),
+              names_from = sex,
+              names_sep = "_",
+              values_from = c(pop_alone, pop_alone_comb)) %>% 
+  mutate(pop_alone = pop_alone_M + pop_alone_F,
+         pop_alone_comb = pop_alone_comb_M + 
+           pop_alone_comb_F) %>% 
+  select(st_fips, age, pop_alone, 
+         pop_alone_comb) %>% 
+  mutate(race_ethn = "AI/AN")
+
+######## join alone / alone_comb to seer for sensitivity
+pop<-pop %>% 
+  left_join(pop_alone_comb)
+
+
+#### pop sensitivity
+
+pop_sens<-pop %>% 
+  filter(year==2014,
+         race_ethn=="AI/AN") %>% 
+  group_by(state) %>% 
+  summarise(pop = sum(pop),
+            pop_alone = sum(pop_alone),
+            pop_alone_comb = sum(pop_alone_comb)) %>% 
+  mutate(r_pop_alone = pop/pop_alone,
+         r_pop_alone_comb = pop/pop_alone_comb) %>% 
+  select(state, r_pop_alone, r_pop_alone_comb) %>% 
+  pivot_longer(cols = r_pop_alone:r_pop_alone_comb,
+               names_to = "type",
+               values_to = "ratio")
+
+### vis of possible bias from alone / alone_comb
+ggplot(pop_sens,
+       aes(x = ratio, fill = type)) + 
+  geom_density(alpha = 0.5, color = "black")
+####
 
 format_data<-function(dat){
   dat1<-dat %>%
@@ -45,7 +140,9 @@ ncands_inv<-read_csv("~/Projects/cps_lifetables/data/state_first_inv.csv") %>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone), 
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 ncands_sub<-read_csv("~/Projects/cps_lifetables/data/state_first_victim_out.csv")%>%
@@ -55,7 +152,9 @@ ncands_sub<-read_csv("~/Projects/cps_lifetables/data/state_first_victim_out.csv"
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone),
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 
@@ -69,7 +168,9 @@ afcars_fc<-read_csv("./data/state_first_fc.csv")%>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone), 
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 afcars_tpr<-read_csv("./data/afcars_tpr_st.csv")%>%
@@ -80,7 +181,9 @@ afcars_tpr<-read_csv("./data/afcars_tpr_st.csv")%>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone), 
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 afcars_non_icwa<-read_csv("./data/afcars_non_icwa_st.csv")%>%
@@ -91,7 +194,9 @@ afcars_non_icwa<-read_csv("./data/afcars_non_icwa_st.csv")%>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone), 
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 afcars_fc_inv<-read_csv("./data/afcars_fc_post_inv_st.csv")%>%
@@ -101,7 +206,9 @@ afcars_fc_inv<-read_csv("./data/afcars_fc_post_inv_st.csv")%>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone), 
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 afcars_fc_sub<-read_csv("./data/afcars_fc_post_sub_st.csv")%>%
@@ -112,7 +219,9 @@ afcars_fc_sub<-read_csv("./data/afcars_fc_post_sub_st.csv")%>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
-            pop = sum(pop)) %>%
+            pop = sum(pop), 
+            pop_min = sum(pop_alone), 
+            pop_max = sum(pop_alone_comb)) %>%
   ungroup()
 
 
@@ -121,6 +230,7 @@ afcars_fc_sub<-read_csv("./data/afcars_fc_post_sub_st.csv")%>%
 
 
 investigation_tables<-list()
+investigation_tables_ac<-list()
 states<-unique(ncands_inv$state)
 race_id<-unique(ncands_inv$race_ethn)
 imps<-unique(ncands_inv$.imp)
@@ -135,21 +245,36 @@ for(i in 1:length(imps)){
       temp<-temp %>% 
         filter(.imp==i)
       investigation_tables[[index]]<-make_life_table(temp)
+      investigation_tables_ac[[index]]<-make_life_table(temp %>% 
+                                                         mutate(pop = pop_max))
       index<-index+1
     }
   }
 }
 investigation_tables<-bind_rows(investigation_tables)
+investigation_tables_ac<-bind_rows(investigation_tables_ac) %>% 
+  rename(q_c = q, c_c = c) %>% 
+  select(.imp, age, race_ethn, state, 
+         var, q_c, c_c)
+
+investigation_tables<-investigation_tables %>% 
+  left_join(investigation_tables_ac)
+
 
 investigation_tables_c<-investigation_tables %>% 
   filter(age==18) %>%
-  select(.imp, state, race_ethn, c) 
+  select(.imp, state, race_ethn, c, c_c) 
+
+
+
+
 
 ## ## ## ## ## ## ## ## ## ## ## ## ## 
 ## substantiation
 ## ## ## ## ## ## ## ## ## ## ## ## ## 
 ### run lifetable by year
 subst_tables<-list()
+subst_tables_ac<-list()
 states<-unique(ncands_sub$state)
 race_id<-unique(ncands_sub$race_ethn)
 imps<-unique(ncands_sub$.imp)
@@ -164,15 +289,24 @@ for(i in 1:length(imps)){
       temp<-temp %>% 
         filter(.imp==i)
       subst_tables[[index]]<-make_life_table(temp)
+      subst_tables_ac[[index]]<-make_life_table(temp %>% 
+                                               mutate(pop = pop_max))
       index<-index+1
     }
   }
 }
 subst_tables<-bind_rows(subst_tables)
+subst_tables_ac<-bind_rows(subst_tables_ac) %>% 
+  rename(q_c = q, c_c = c) %>% 
+  select(.imp, age, race_ethn, state, 
+         var, q_c, c_c)
+
+subst_tables<-subst_tables %>% 
+  left_join(subst_tables_ac)
 
 subst_tables_c<-subst_tables %>%
   filter(age==18) %>%
-  select(.imp, state, race_ethn, c) 
+  select(.imp, state, race_ethn, c, c_c) 
 
 ##############################################
 ## p(sub|inv) = p(inv, sub)/p(inv)
