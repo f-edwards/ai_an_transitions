@@ -7,6 +7,37 @@ library(geofacet)
 
 theme_set(theme_bw())
 source("lifetable.r")
+
+### CHECKING THE CENSUS PEP ALONE/COMB DATA FOR THIS PERIOD
+pop_new<-read_csv("./data/cc-est2019-alldata.csv")
+### code age groups
+pop_new<-pop_new %>% 
+  mutate(age = case_when(
+    AGEGRP==0 ~ "Total",
+    AGEGRP==1 ~ "0-4",
+    AGEGRP==2 ~ "5-9",
+    AGEGRP==3 ~ "10-14",
+    AGEGRP==4 ~ "15-19",
+    AGEGRP>4 ~ "20+"
+  ))
+
+pop_new<-pop_new %>% 
+  mutate(aian = NHIAC_MALE + NHIAC_FEMALE + 
+           HIAC_MALE + HIAC_FEMALE)
+
+pop_new<-pop_new %>% 
+  select(STATE, COUNTY, STNAME, CTYNAME, 
+         YEAR, AGEGRP, TOT_POP, AGEGRP,
+         age, aian) %>% 
+  filter(YEAR>2) %>% 
+  filter(age!="Total", 
+         age!="20+") %>% 
+  mutate(year = YEAR + 2007) %>% 
+  select(-YEAR, -AGEGRP) %>% 
+  group_by(STATE, year, age) %>% 
+  summarise(pop = sum(aian)) %>% 
+  mutate(race_ethn = "AIAN")
+
 pop<-read_fwf("~/Projects/cps_lifetables/data/us.1990_2018.singleages.adjusted.txt",
               fwf_widths(c(4, 2, 2, 3, 2, 1, 1, 1, 2, 8),
                          c("year", "state", "st_fips",
@@ -15,113 +46,66 @@ pop<-read_fwf("~/Projects/cps_lifetables/data/us.1990_2018.singleages.adjusted.t
               col_types = "iccciiiiii")
 
 pop<-pop %>%
-  filter(age<=18, race == 3 | (race==1 & hisp==0), year >=2003) %>%
+  filter(age<20, race == 3 | (race==1 & hisp==0), year >=2010) %>%
   mutate(pop = as.integer(pop),
          age = as.integer(age),
          race_ethn =
            case_when(
              race==1 & hisp ==0 ~ "White",
-             race==3 ~ "AI/AN"))%>%
+             race==3 ~ "AIAN"))%>%
   group_by(year,state, st_fips, age, race_ethn) %>%
   summarise(pop = sum(pop)) %>%
   ungroup() %>%
   mutate(st_fips = as.numeric(st_fips))
 
-### read in AIAN alone or in combination 2010 census data by state
-pop_alone_comb<-read_csv("./data/nhgis0053_ds181_2010_state.csv") %>% 
-  select(YEAR, STATE, STATEA,
-         LGJAAE003:LGJAAE021, ## male 0 - 18 AIAN alone
-         LGJAAE107:LGJAAE125, ## female 0 - 18 AIAN alone
-         LGJACF003:LGJACF021, ## male 0-18 AIAN alone or in comb
-         LGJACF107:LGJACF125 ## female 0-18 AIAN alone or in comb
-         )
+########## use PEP for AIAN totals, 
+### portion single years 
+### based on proportions in SEER
 
-pop_alone_m<-pop_alone_comb %>% 
-  select(YEAR, STATE, STATEA,
-         LGJAAE003:LGJAAE021) %>% 
-  pivot_longer(cols = LGJAAE003:LGJAAE021,
-               names_to = "age",
-               values_to = "pop_alone") %>% 
-  mutate(age = substr(age, 7, 9),
-         age = as.numeric(age) - 3,
-         sex = "M")
+pop_seer_aian<-pop %>% 
+  filter(race_ethn=="AIAN") %>% 
+  filter(year>=2010) %>% 
+  mutate(age_grp = 
+           case_when(
+             age<5 ~ "0-4",
+             age<10 ~ "5-9",
+             age<15 ~ "10-14",
+             age<20 ~ "15-19"
+           ))
 
-pop_alone_f<-pop_alone_comb %>% 
-  select(YEAR, STATE, STATEA,
-         LGJAAE107:LGJAAE125) %>% 
-  pivot_longer(cols = LGJAAE107:LGJAAE125,
-               names_to = "age",
-               values_to = "pop_alone") %>% 
-  mutate(age = substr(age, 7, 9),
-         age = as.numeric(age) - 107,
-         sex = "F")
+pop_seer_aian_grp <- pop_seer_aian %>% 
+  group_by(st_fips, state, year, age_grp) %>% 
+  summarise(pop_grp = sum(pop)) %>% 
+  right_join(pop_seer_aian) %>% 
+  mutate(pct = pop / pop_grp) %>% 
+  rename(seer_pop = pop)
 
-pop_alone_comb_m<-pop_alone_comb %>% 
-  select(YEAR, STATE, STATEA,
-         LGJACF003:LGJACF021) %>% 
-  pivot_longer(cols = LGJACF003:LGJACF021,
-               names_to = "age",
-               values_to = "pop_alone_comb") %>% 
-  mutate(age = substr(age, 7, 9),
-         age = as.numeric(age) - 3,
-         sex = "M")
+### use age distribution in SEER to disaggregate
+### 5 year pep categories
+### assumes bridged race age distribution == alone/comb age distribution
 
-pop_alone_comb_f<-pop_alone_comb %>% 
-  select(YEAR, STATE, STATEA,
-         LGJACF107:LGJACF125) %>% 
-  pivot_longer(cols = LGJACF107:LGJACF125,
-               names_to = "age",
-               values_to = "pop_alone_comb") %>% 
-  mutate(age = substr(age, 7, 9),
-         age = as.numeric(age) - 107,
-         sex = "F")
+pop_aian<-pop_new %>% 
+  mutate(st_fips = as.numeric(STATE)) %>% 
+  rename(age_grp = age) %>% 
+  right_join(pop_seer_aian_grp) %>% 
+  mutate(pop_adj = pop * pct) %>% 
+  ungroup() %>% 
+  select(year, race_ethn, st_fips, state,
+         age, pop_adj, seer_pop) %>% 
+  arrange(year, state, age) 
 
-pop_alone_comb<-pop_alone_m %>% 
-  bind_rows(pop_alone_f) %>% 
-  left_join(pop_alone_comb_f %>% 
-              bind_rows(pop_alone_comb_m)) %>% 
-  filter(STATEA!=72) %>% 
-  mutate(st_fips = as.numeric(STATEA)) %>% 
-  select(-STATE,-STATEA, -YEAR) 
-  
-pop_alone_comb<-pop_alone_comb %>% 
-  pivot_wider(id_cols = c(st_fips, age),
-              names_from = sex,
-              names_sep = "_",
-              values_from = c(pop_alone, pop_alone_comb)) %>% 
-  mutate(pop_alone = pop_alone_M + pop_alone_F,
-         pop_alone_comb = pop_alone_comb_M + 
-           pop_alone_comb_F) %>% 
-  select(st_fips, age, pop_alone, 
-         pop_alone_comb) %>% 
-  mutate(race_ethn = "AI/AN")
+pop_t<-pop %>% 
+  left_join(pop_aian %>% 
+              select(-seer_pop))
 
-######## join alone / alone_comb to seer for sensitivity
-pop<-pop %>% 
-  left_join(pop_alone_comb)
+ggplot(pop_aian %>% 
+         filter(year == 2018),
+       aes(x = age, ymin=seer_pop, ymax=pop_adj)) + 
+  geom_ribbon(fill = "green", alpha = 0.5,
+              color = "black") + 
+  facet_wrap(~state) + 
+  ggsave("./vis/seer_pep_adjusted.png", width = 10, height = 6)
 
-
-#### pop sensitivity
-
-pop_sens<-pop %>% 
-  filter(year==2014,
-         race_ethn=="AI/AN") %>% 
-  group_by(state) %>% 
-  summarise(pop = sum(pop),
-            pop_alone = sum(pop_alone),
-            pop_alone_comb = sum(pop_alone_comb)) %>% 
-  mutate(r_pop_alone = pop/pop_alone,
-         r_pop_alone_comb = pop/pop_alone_comb) %>% 
-  select(state, r_pop_alone, r_pop_alone_comb) %>% 
-  pivot_longer(cols = r_pop_alone:r_pop_alone_comb,
-               names_to = "type",
-               values_to = "ratio")
-
-### vis of possible bias from alone / alone_comb
-ggplot(pop_sens,
-       aes(x = ratio, fill = type)) + 
-  geom_density(alpha = 0.5, color = "black")
-####
 
 format_data<-function(dat){
   dat1<-dat %>%
