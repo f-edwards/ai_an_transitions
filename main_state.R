@@ -168,7 +168,6 @@ afcars_tpr<-read_csv("./data/afcars_tpr_st.csv")%>%
   group_by(.imp, age, race_ethn, state) %>%
   summarise(var = sum(var),
             pop = sum(pop), 
-             
             pop_max = sum(pop_adj)) %>%
   ungroup()
 
