@@ -44,6 +44,22 @@ pop<-read_fwf("~/Projects/cps_lifetables/data/us.1990_2018.singleages.adjusted.t
                            "hisp", "sex", "age", "pop")),
               col_types = "iccciiiiii")
 
+pop_seer_nat<-pop %>%
+  filter(year==2018)%>% 
+  mutate(pop = as.integer(pop),
+         age = as.integer(age),
+         race_ethn =
+           case_when(
+             race==3 ~ "AIAN"),
+         race_ethn = ifelse(is.na(race_ethn),
+                            "other",
+                            race_ethn))%>%
+  group_by(year,state, st_fips, age, race_ethn) %>%
+  summarise(pop = sum(pop)) %>%
+  ungroup() %>%
+  mutate(st_fips = as.numeric(st_fips))
+
+
 pop<-pop %>%
   filter(race == 3 | (race==1 & hisp==0), year >=2010) %>%
   mutate(pop = as.integer(pop),
@@ -56,6 +72,8 @@ pop<-pop %>%
   summarise(pop = sum(pop)) %>%
   ungroup() %>%
   mutate(st_fips = as.numeric(st_fips))
+
+
 
 ########## use PEP for AIAN totals, 
 ### portion single years 
@@ -577,6 +595,30 @@ tpr_cond<-tpr_tables_c%>%
               select(.imp, race_ethn, state, fc, fc_c)) %>% 
   mutate(tpr_fc = tpr / fc,
          tpr_fc_c = tpr_c/fc_c)
+
+#######################
+## AAIA ICWA data
+
+icwa<-read_csv("./data/icwa_data.csv") 
+### add state abbrev
+xwalk<-data.frame(State = as.character(state.name), 
+                  state.abb = as.character(state.abb))
+icwa<-icwa %>% 
+  left_join(xwalk)
+
+icwa<-icwa %>% 
+  mutate(AIAN = fc_aian,
+         White = fc_non)
+
+icwa_fc<-icwa %>% 
+  select(state.abb, AIAN, White) %>% 
+  rename(state = state.abb) %>% 
+  pivot_longer(col = AIAN:White, 
+               names_to = "race_ethn",
+               values_to = "fc") %>% 
+  mutate(period = "1976") 
+
+
 
 # 
 # ############################################################
