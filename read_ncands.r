@@ -42,7 +42,12 @@ data(state.fips)
 state.fips<-state.fips %>% 
   select(fips, abb) %>% 
   distinct() %>% 
-  rename(staterr = abb)
+  rename(staterr = abb) 
+
+## add missings, HI AND AK
+state.fips<-state.fips %>% 
+  bind_rows(data.frame(fips = c(2, 15), staterr = c("AK", "HI")))
+
 
 ncands_xwalk<-ncands_xwalk %>% 
   left_join(state.fips) %>% 
@@ -58,4 +63,4 @@ ncands_xwalk<-ncands_xwalk %>%
 write_csv(ncands_xwalk, 
           "~/Projects/ai_an_transitions/data/ncands_xwalk.csv")
 
-q("no")
+#q("no")
