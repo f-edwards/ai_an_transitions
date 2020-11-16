@@ -129,7 +129,17 @@ ggplot(icwa_delta %>%
   ggsave("./vis/cjlr/1.png", width = 8, height = 4)
 
 
-
+### totals for over/under change
+icwa_delta %>% 
+  mutate(fc = ifelse(period == "1976",
+                     fc * -1,
+                     fc)) %>% 
+  group_by(state, race_ethn) %>% 
+  summarise(delta = sum(fc)) %>% 
+  ungroup() %>% 
+  group_by(race_ethn) %>% 
+  summarise(increased = sum(delta>0),
+            decreased = sum(delta<0))
 
 ### National table
 
@@ -306,7 +316,7 @@ us_map<-us_map %>%
                       
 
 
-ggplot(us_map %>% 
+inv_map<-ggplot(us_map %>% 
          filter(!(is.na(var))),
        aes(x = x, y = y, group = group,
            fill = c)) + 
@@ -314,8 +324,7 @@ ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Risk") + 
-  ggsave("./vis/data_leaders/7.png", width = 8, height = 4)
+  labs(fill = "Investigation") 
   
 
 
@@ -395,7 +404,7 @@ us_map<-us_map %>%
 
 
 
-ggplot(us_map %>% 
+subst_map<-ggplot(us_map %>% 
          filter(!(is.na(var))),
        aes(x = x, y = y, group = group,
            fill = c)) + 
@@ -403,8 +412,7 @@ ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Risk") + 
-  ggsave("./vis/data_leaders/10.png", width = 8, height = 4)
+  labs(fill = "Substantiation") 
 
 ### high subst states
 
@@ -488,7 +496,7 @@ us_map<-us_map %>%
   left_join(map_dat %>% 
               rename(abbr = state)) 
 
-ggplot(us_map %>% 
+fc_map<-ggplot(us_map %>% 
          filter(!(is.na(var))),
        aes(x = x, y = y, group = group,
            fill = c)) + 
@@ -496,8 +504,7 @@ ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Risk") + 
-  ggsave("./vis/data_leaders/13.png", width = 8, height = 4)
+  labs(fill = "Foster Care") 
 
 ### high rate states
 fc_high <- fc_tables %>% 
@@ -576,7 +583,7 @@ us_map<-us_map %>%
   left_join(map_dat %>% 
               rename(abbr = state)) 
 
-ggplot(us_map %>% 
+tpr_map<-ggplot(us_map %>% 
          filter(!(is.na(var))),
        aes(x = x, y = y, group = group,
            fill = c)) + 
@@ -584,9 +591,16 @@ ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Risk") + 
-  ggsave("./vis/data_leaders/16.png", width = 8, height = 4)
+  labs(fill = "TPR") 
 
+library(gridExtra)
+
+grid.arrange(inv_map, subst_map, fc_map, tpr_map)
+
+g<-arrangeGrob(inv_map, subst_map, fc_map, tpr_map,
+               nrow = 2)
+
+ggsave("./vis/cjlr/2.png", g)
 
 #### summary map
 
