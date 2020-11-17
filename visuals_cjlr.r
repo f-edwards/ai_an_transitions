@@ -324,7 +324,11 @@ inv_map<-ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Investigation") 
+  theme(legend.position = "bottom") +
+  labs(fill = "Investigation") +
+  guides(fill = guide_colourbar(title.position = "top",
+                             label.position = "bottom",
+                             title.hjust = 0.5))
   
 
 
@@ -412,7 +416,11 @@ subst_map<-ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Substantiation") 
+  theme(legend.position = "bottom") +
+  labs(fill = "Substantiation") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
 
 ### high subst states
 
@@ -504,7 +512,11 @@ fc_map<-ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "Foster Care") 
+  labs(fill = "Foster Care") +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
 
 ### high rate states
 fc_high <- fc_tables %>% 
@@ -591,7 +603,11 @@ tpr_map<-ggplot(us_map %>%
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
-  labs(fill = "TPR") 
+  labs(fill = "TPR") +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
 
 library(gridExtra)
 
@@ -600,7 +616,7 @@ grid.arrange(inv_map, subst_map, fc_map, tpr_map)
 g<-arrangeGrob(inv_map, subst_map, fc_map, tpr_map,
                nrow = 2)
 
-ggsave("./vis/cjlr/2.png", g)
+ggsave("./vis/cjlr/2.png", g, width = 6.5, height = 5)
 
 #### summary map
 
