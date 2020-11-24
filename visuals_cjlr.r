@@ -247,7 +247,7 @@ ggplot(plot_dat,
   labs(color = "", fill = "", x = "Age", y = "Conditional probability") + 
   scale_fill_brewer(palette = "Dark2")+
   scale_color_brewer(palette = "Dark2") + 
-  ggsave("./vis/cjlr/3.png")
+  ggsave("./vis/cjlr/3.png", width = 6.5)
 
 #################################################################
 ############# MAPS
