@@ -10,6 +10,7 @@ library(geofacet)
 library(RColorBrewer)
 library(mapproj)
 library(usmap)
+library(gridExtra)
 theme_set(theme_bw())
 
 # Suppress summarise info
@@ -227,17 +228,22 @@ plot_dat<-cond_sub_inv %>%
   group_by(age, race_ethn, var) %>% 
   summarise(q = mean(cond),
             qmin = min(cond),
-            qmax = max(cond)) %>% 
-  mutate(var = factor(var, levels = c(
-    "P(sub|inv)", "P(FC|inv)", 
-    "P(FC|sub)", "P(TPR|FC)")))
+            qmax = max(cond))
+
+plot_dat<-plot_dat %>% 
+  mutate(var = case_when(
+    var == "P(FC|inv)" ~ "2. Foster care after investigation",
+    var == "P(FC|sub)" ~ "3. Foster care after substantiation",
+    var == "P(sub|inv)" ~ "1. Substantiation after investigation",
+    var == "P(TPR|FC)"  ~ "4. Termination after foster care"
+  )) 
 
 ggplot(plot_dat,
        aes(x = age, y = q, ymin = qmin, ymax = qmax,
            fill = race_ethn, color = race_ethn)) + 
   geom_line() + 
   geom_ribbon(alpha = 0.5, color = NA) + 
-  facet_wrap(~var) + 
+  facet_wrap(~factor(var)) + 
   labs(color = "", fill = "", x = "Age", y = "Conditional probability") + 
   scale_fill_brewer(palette = "Dark2")+
   scale_color_brewer(palette = "Dark2") + 
@@ -275,10 +281,105 @@ inv_map<-ggplot(us_map %>%
   guides(fill = guide_colourbar(title.position = "top",
                              label.position = "bottom",
                              title.hjust = 0.5))
-  
+
+map_dat<-subst_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+sub_map<-ggplot(us_map %>% 
+                  filter(!(is.na(var))),
+                aes(x = x, y = y, group = group,
+                    fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Substantation") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
+
+map_dat<-fc_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+fc_map<-ggplot(us_map %>% 
+                  filter(!(is.na(var))),
+                aes(x = x, y = y, group = group,
+                    fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Foster Care") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
+
+map_dat<-tpr_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+tpr_map<-ggplot(us_map %>% 
+                 filter(!(is.na(var))),
+               aes(x = x, y = y, group = group,
+                   fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "TPR") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
+
+
+c_map<-grid.arrange(inv_map, sub_map,
+                    fc_map, tpr_map)
+
+ggsave("./vis/cjlr/4.png", c_map)
+
+
+##################
 #### #### #### #### 
 #### rate ratio for inequality
 #### #### #### #### 
+### xwalk state maps onto abbreviations
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+
+#### DO OTHER MAPS HERE
+
+  
+
 
 map_dat<-investigation_tables_c %>% 
   group_by(state, race_ethn) %>% 
@@ -357,4 +458,4 @@ ggplot(us_map,
   theme_void() + 
   scale_fill_brewer(palette = "Purples") +
   labs(fill = "AIAN / White\nRate Ratio") + 
-  ggsave("./vis/data_leaders/4.png", width = 8, height = 4)
+  ggsave("./vis/cjlr/5.png", width = 8, height = 4)
