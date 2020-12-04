@@ -8,6 +8,24 @@ afcars<-read_csv("./data/afcars_imputed_all_cases.csv",
                  col_types = cols(stfcid = "c")) %>% 
   filter(year>=2014)
 
+### make point-in-time state caseloads for ICWA comps
+#### read in 2018 afcars
+
+afcars19<-read_tsv("~/Projects/ndacan_data/afcars/FC2019v1.tab")
+afcars19_caseload <- afcars19 %>% 
+  group_by(STATE, St, AMIAKN) %>% 
+  summarise(caseload = sum(InAtEnd, na.rm=T))
+  
+### write it out for ICWA comps
+write_csv(afcars19_caseload,
+          "./data/afcars19_caseload.csv")
+
+afcars_caseload<-afcars %>% 
+  group_by(.imp, state, age, race_ethn, year) %>% 
+  summarise(var = n())
+
+
+
 ncands_xwalk<-read_csv("./data/ncands_xwalk.csv",
                        col_types = cols(stfcid = "c")) %>% 
   distinct() %>% 

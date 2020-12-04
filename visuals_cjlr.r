@@ -5,6 +5,7 @@ gc()
 ### suppress messages
 library(tidyverse, warn.conflicts = FALSE)
 options(dplyr.summarise.inform = FALSE)
+# Suppress summarise info
 
 library(geofacet)
 library(RColorBrewer)
@@ -13,12 +14,16 @@ library(usmap)
 library(gridExtra)
 theme_set(theme_bw())
 
-# Suppress summarise info
 
 #### make needed state and national tables
 
-source("make_state_tables.R")
-source("make_national_tables.r")
+# source("make_state_tables.R")
+# source("make_national_tables.r")
+# source("read_adopt.r")
+# 
+# save.image("./cjlr.RData")
+
+load("./cjlr.RData")
 
 ####################################################################################
 ############## ICWA figures
@@ -43,86 +48,74 @@ icwa_st<-icwa %>%
   filter(!(is.na(fc_aian))) 
 
 ## 
-afcars_caseload<-read_csv("./data/state_first_fc.csv")%>%
-  filter(.imp==1) %>% 
-  rename(year = fy) %>%
-  filter(state!=72) %>%
-  rename(var = first_entry) %>%
-  rename(st_fips = state) %>% 
-  filter(year == 2018) %>% 
-  mutate(race_ethn = ifelse(race_ethn=="AI/AN",
+
+
+afcars_caseload19<-read_csv("./data/afcars19_caseload.csv")
+afcars_caseload19<-afcars_caseload19 %>% 
+  mutate(race_ethn = ifelse(AMIAKN==1,
                             "AIAN",
                             "other")) %>% 
-  group_by(st_fips, race_ethn) %>% 
-  summarise(fc = sum(var)) %>% 
-  ungroup() %>% 
-  left_join(pop_seer_nat %>% 
-              filter(age<=21) %>% 
-              select(state, st_fips, age, race_ethn, pop) %>% 
-              group_by(state, st_fips, race_ethn) %>% 
-              summarize(pop = sum(pop)) %>% 
-              ungroup()) %>% 
-  filter(state%in%icwa_fc$state) %>% 
-  ungroup()
+  rename(state = St,
+         st_fips = STATE,
+         fc = caseload) %>% 
+  filter(st_fips!=72) %>% 
+  select(st_fips, race_ethn, fc) %>% 
+  filter(!is.na(race_ethn))
+
+# afcars_caseload<-read_csv("./data/state_first_fc.csv")%>%
+#   filter(.imp==1) %>% 
+#   rename(year = fy) %>%
+#   filter(state!=72) %>%
+#   rename(var = first_entry) %>%
+#   rename(st_fips = state) %>% 
+#   filter(year == 2018) %>% 
+#   mutate(race_ethn = ifelse(race_ethn=="AI/AN",
+#                             "AIAN",
+#                             "other")) %>% 
+#   group_by(st_fips, race_ethn) %>% 
+#   summarise(fc = sum(var)) %>% 
+#   ungroup() %>% 
+#   left_join(pop_seer_nat %>% 
+#               filter(age<=21) %>% 
+#               select(state, st_fips, age, race_ethn, pop) %>% 
+#               group_by(state, st_fips, race_ethn) %>% 
+#               summarize(pop = sum(pop)) %>% 
+#               ungroup()) %>% 
+#   filter(state%in%icwa_fc$state) %>% 
+#   ungroup()
+
+### add adoption data
+
+### join with afcars adoption data
+afcars_caseload<-afcars_caseload19 %>% 
+  left_join(afcars_adopt_caseload_19 %>% 
+  mutate(race_ethn = ifelse(race_ethn=="AIAN", 
+                            race_ethn,
+                            "other")) %>% 
+  mutate(n_non_preferred = ifelse(race_ethn=="AIAN",
+                                  n - n_kin_or_aian,
+                                  n - n_kin),
+         adopt_non_preferred = n_non_preferred / n) %>% 
+    rename(st_fips = STATE,
+           state = St,
+           adopted = n) %>% 
+  select(state, race_ethn, adopted, adopt_non_preferred)) %>% 
+  mutate(state,  race_ethn, fc, adopted) %>% 
+  mutate(period = "2019")
+
+### state comparisons
+icwa_delta<-icwa_fc %>% 
+  select(-St) %>% 
+  mutate(race_ethn = ifelse(race_ethn=="White",
+                            "other",
+                            race_ethn)) %>% 
+  bind_rows(afcars_caseload %>% 
+              select(state, period, race_ethn, fc, adopted)) %>% 
+  filter(state%in%icwa_fc$state)
 
 ### make comparable national totals
-
-afcars_nat<-afcars_caseload %>% 
-  group_by(race_ethn) %>% 
-  summarize(fc = sum(fc),
-            pop = sum(pop))
-
-icwa_nat<-left_join(
-  icwa_nat %>% 
-    pivot_longer(cols = everything()) %>% 
-    mutate(race_ethn = 
-             case_when(name %in% c("fc_aian",
-                                   "pop_aian21") ~ "AIAN",
-                       name%in% c("fc_non",
-                                  "pop_non") ~ "other")) %>% 
-    filter(name %in% c("fc_aian", "fc_non")) %>% 
-             rename(fc = value) %>% 
-    select(-name),
-  icwa_nat %>% 
-    pivot_longer(cols = everything()) %>% 
-    mutate(race_ethn = 
-             case_when(name %in% c("fc_aian",
-                                   "pop_aian21") ~ "AIAN",
-                       name%in% c("fc_non",
-                                  "pop_non") ~ "other")) %>% 
-    filter(name %in% c("pop_aian21", "pop_non")) %>% 
-    rename(pop = value) %>% 
-    select(-name)
-  ) %>% 
-  mutate(year = 1976)
-
-nat_delta<-icwa_nat %>% 
-  mutate(prop_change =  fc/ afcars_nat$fc) %>% 
-  bind_rows(afcars_nat %>% 
-              mutate(year = 2018,
-                     prop_change = 1)) %>% 
-  mutate(race_ethn = ifelse(
-    race_ethn == "AIAN", "AIAN",
-    "Not AIAN"
-  )) %>% 
-  mutate(rate = fc / pop * 100)
-  
-ggplot(nat_delta,
-       aes(x = factor(year), y = fc)) + 
-  geom_col() + 
-  facet_wrap(~race_ethn, scales = "free") +
-  labs(x = "Year", y = "Children in foster care") 
-
-icwa_delta<-icwa_fc %>% 
-  mutate(race_ethn = 
-                  ifelse(race_ethn == "White",
-                         "other", 
-                         race_ethn)) %>% 
-  bind_rows(afcars_caseload %>% 
-              mutate(period = "2018") %>% 
-              select(state, race_ethn, fc, period)) %>% 
-  filter(!is.na(state),
-         state!="MS")
+### can't compare per cap rates
+### pop denominators aren't comparable
 
 ggplot(icwa_delta %>% 
          mutate(race_ethn = 
@@ -137,19 +130,71 @@ ggplot(icwa_delta %>%
        x = "Children in foster care",
        fill = "") + 
   ggsave("./vis/cjlr/1.png", width = 8, height = 4)
+  
+  ggplot(icwa_delta %>% 
+           mutate(race_ethn = 
+                    ifelse(race_ethn=="other",
+                           "Non-AIAN",
+                           race_ethn)),
+         aes(y = state, x = adopted, fill = period)) + 
+    geom_col(position = position_dodge2(reverse = T)) + 
+    facet_wrap(~race_ethn, scales = "free") + 
+    scale_fill_brewer(palette = "Dark2") + 
+    labs(y = "",
+         x = "Children in adoption",
+         fill = "") + 
+  ggsave("./vis/cjlr/1_2.png", width = 8, height = 4)
+
+#### make state-level proportional change over time 
+### for both outcomes
+  
+icwa_delta_pct<-
+  icwa_delta %>% 
+  pivot_wider(id_cols = c(state, race_ethn),
+              names_from = period, 
+              values_from = c(fc, adopted)) %>% 
+  mutate(delta_fc = (fc_2019 / fc_1976 -1) * 100,
+         delta_adopt = (adopted_2019/adopted_1976 -1)*100) %>% 
+  select(state, race_ethn, delta_fc, delta_adopt) %>% 
+  pivot_longer(cols = delta_fc:delta_adopt) %>% 
+  mutate(name = ifelse(
+    name=="delta_fc",
+    "Foster care",
+    "Adoption"
+  ))
+
+### remove adoption states where we don't have AIAN ICWA numbers
+index<-icwa_delta_pct %>% 
+  filter(is.na(value))
+
+icwa_delta_pct <- icwa_delta_pct %>% 
+  mutate(value = ifelse(state%in%index$state & name == "Adoption",
+         NA,
+         value))
+
+ggplot(icwa_delta_pct %>% 
+         mutate(race_ethn =
+                  ifelse(race_ethn == "AIAN",
+                         race_ethn,
+                         "Non-AIAN")),
+       aes(x = value,
+           y = state,
+           fill = name)) + 
+  geom_col(position = position_dodge2(reverse = T)) + 
+  labs(y = "") +
+  geom_vline(xintercept = 0, lty = 2) +
+  scale_fill_brewer(palette = "Dark2") + 
+  facet_wrap(~race_ethn, scales = "free") + 
+  labs(fill = "", 
+       x = "Percent increase, 1976 to 2019") +
+  ggsave("./vis/cjlr/1_3.png", width = 8, height = 4)
+    
+  
+  
 
 
-### totals for over/under change
-icwa_delta %>% 
-  mutate(fc = ifelse(period == "1976",
-                     fc * -1,
-                     fc)) %>% 
-  group_by(state, race_ethn) %>% 
-  summarise(delta = sum(fc)) %>% 
-  ungroup() %>% 
-  group_by(race_ethn) %>% 
-  summarise(increased = sum(delta>0),
-            decreased = sum(delta<0))
+
+
 
 ##############################################################
 ###### National age-spec risk

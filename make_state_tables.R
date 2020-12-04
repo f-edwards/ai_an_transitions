@@ -584,6 +584,7 @@ tpr_cond<-tpr_tables_c%>%
 ## AAIA ICWA data
 
 icwa<-read_csv("./data/icwa_data.csv") 
+
 ### add state abbrev
 xwalk<-data.frame(State = as.character(state.name), 
                   state.abb = as.character(state.abb))
@@ -594,11 +595,26 @@ icwa<-icwa %>%
   mutate(AIAN = fc_aian,
          White = fc_non)
 
+icwa_adopt<-icwa %>% 
+  mutate(AIAN = adopted_aian,
+         White = adopted_non)
+
 icwa_fc<-icwa %>% 
-  select(state.abb, AIAN, White) %>% 
-  rename(state = state.abb) %>% 
+  select(State, state.abb, AIAN, White) %>% 
+  rename(state = state.abb,
+         St = State) %>% 
   pivot_longer(col = AIAN:White, 
                names_to = "race_ethn",
                values_to = "fc") %>% 
-  mutate(period = "1976") 
+  mutate(period = "1976") %>% 
+  left_join(icwa_adopt %>% 
+              select(State, state.abb, AIAN, White) %>% 
+              rename(state = state.abb,
+                     St = State) %>% 
+              pivot_longer(col = AIAN:White, 
+                           names_to = "race_ethn",
+                           values_to = "adopted")) 
+
+
+
 
