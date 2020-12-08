@@ -190,10 +190,19 @@ ggplot(icwa_delta_pct %>%
   ggsave("./vis/cjlr/1_3.png", width = 8, height = 4)
     
   
-  
+icwa_nat<-icwa_delta %>% 
+  filter(!state%in%index$state) %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc),
+            adopted = sum(adopted))
 
 
-
+### plus boarding
+total_inst<-icwa_delta %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc),
+            adopted = sum(adopted, na.rm=T)) %>% 
+  mutate(total = fc + adopted)
 
 
 ##############################################################
