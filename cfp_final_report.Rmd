@@ -1,0 +1,272 @@
+---
+title: "Mechanisms of AIAN Inequality in Child Welfare Across U.S. States."
+author: "Frank Edwards and Theresa Rocha Beardall"
+date: "12/2020"
+abstract: "American Indian and Alaska Native children are separated from their families by state child welfare agencies at exceptionally high rates. This study connects contemporary trends in Native family separation to histories of Indian child removal, and locates places and institutional sites where inequality emerges."
+output: bookdown::html_document2
+---
+
+```{r setup, include=FALSE}
+### load packages and suppress warnings
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+library(tidyverse, warn.conflicts = FALSE)
+options(dplyr.summarise.inform = FALSE)
+
+library(bookdown)
+library(geofacet)
+library(RColorBrewer)
+library(mapproj)
+library(usmap)
+library(gridExtra)
+
+```
+
+
+```{r read-make}
+#### make data for easy load
+# source("make_state_tables.R")
+# source("make_national_tables.r")
+# source("read_adopt.r")
+# 
+# save.image("./cfp_final_report.RData")
+
+load("./cfp_final_report.RData")
+```
+
+# Introduction
+
+clear statement on ongoing crisis of native family separation. aim of report is to 1) evaluate magnitude of change since ICWA, 2) ID geographic variation in inequality, 3) ID sites and places where inequality is accelerated
+
+# lit review
+
+1. historical importance of family separation
+2. ICWA and policy
+3. prior empirics on AIAN inequality
+
+# Data
+
+1. AAIA data
+2. NCANDS
+3. AFCARS FC
+4. AFCARS Adoption
+5. Population data
+
+# Methods
+
+0. age distribution from SEER onto pep
+1. point-in-time comps
+2. period lifetables (age-spec / lifetime)
+3. conditional probs
+4. imputation
+
+# Findings 
+
+## Change since ICWA
+
+
+```{r}
+####################################################################################
+############## ICWA figures
+####################################################################################
+
+### ICWA AAIA data STATES
+
+icwa_fc<-icwa_fc %>% 
+  filter(!is.na(fc))
+
+
+### ICWA DATA NAT
+
+icwa_nat<-icwa %>% 
+  filter(!(is.na(fc_aian))) %>% 
+  summarize(fc_aian = sum(fc_aian),
+            fc_non = sum(fc_non),
+            pop_aian21 = sum(pop_aian21),
+            pop_non = sum(pop_nonAIAN21))
+
+icwa_st<-icwa %>% 
+  filter(!(is.na(fc_aian))) 
+
+## 
+
+
+afcars_caseload19<-read_csv("./data/afcars19_caseload.csv")
+afcars_caseload19<-afcars_caseload19 %>% 
+  mutate(race_ethn = ifelse(AMIAKN==1,
+                            "AIAN",
+                            "other")) %>% 
+  rename(state = St,
+         st_fips = STATE,
+         fc = caseload) %>% 
+  filter(st_fips!=72) %>% 
+  select(st_fips, race_ethn, fc) %>% 
+  filter(!is.na(race_ethn))
+
+# afcars_caseload<-read_csv("./data/state_first_fc.csv")%>%
+#   filter(.imp==1) %>% 
+#   rename(year = fy) %>%
+#   filter(state!=72) %>%
+#   rename(var = first_entry) %>%
+#   rename(st_fips = state) %>% 
+#   filter(year == 2018) %>% 
+#   mutate(race_ethn = ifelse(race_ethn=="AI/AN",
+#                             "AIAN",
+#                             "other")) %>% 
+#   group_by(st_fips, race_ethn) %>% 
+#   summarise(fc = sum(var)) %>% 
+#   ungroup() %>% 
+#   left_join(pop_seer_nat %>% 
+#               filter(age<=21) %>% 
+#               select(state, st_fips, age, race_ethn, pop) %>% 
+#               group_by(state, st_fips, race_ethn) %>% 
+#               summarize(pop = sum(pop)) %>% 
+#               ungroup()) %>% 
+#   filter(state%in%icwa_fc$state) %>% 
+#   ungroup()
+
+### add adoption data
+
+### join with afcars adoption data
+afcars_caseload<-afcars_caseload19 %>% 
+  left_join(afcars_adopt_caseload_19 %>% 
+  mutate(race_ethn = ifelse(race_ethn=="AIAN", 
+                            race_ethn,
+                            "other")) %>% 
+  mutate(n_non_preferred = ifelse(race_ethn=="AIAN",
+                                  n - n_kin_or_aian,
+                                  n - n_kin),
+         adopt_non_preferred = n_non_preferred / n) %>% 
+    rename(st_fips = STATE,
+           state = St,
+           adopted = n) %>% 
+  select(state, race_ethn, adopted, adopt_non_preferred)) %>% 
+  mutate(state,  race_ethn, fc, adopted) %>% 
+  mutate(period = "2019")
+
+### state comparisons
+icwa_delta<-icwa_fc %>% 
+  select(-St) %>% 
+  mutate(race_ethn = ifelse(race_ethn=="White",
+                            "other",
+                            race_ethn)) %>% 
+  bind_rows(afcars_caseload %>% 
+              select(state, period, race_ethn, fc, adopted)) %>% 
+  filter(state%in%icwa_fc$state)
+
+### make comparable national totals
+### can't compare per cap rates
+### pop denominators aren't comparable
+```
+
+```{r icwa-fc-counts, fig.cap = "Children in foster care on reporting date (caseload) by state and period. Data from AAIA surveys and AFCARS"}
+ggplot(icwa_delta %>% 
+         mutate(race_ethn = 
+                  ifelse(race_ethn=="other",
+                         "Non-AIAN",
+                         race_ethn)),
+       aes(y = state, x = fc, fill = period)) + 
+  geom_col(position = position_dodge2(reverse = T)) + 
+  facet_wrap(~race_ethn, scales = "free") + 
+  scale_fill_brewer(palette = "Dark2") + 
+  labs(y = "",
+       x = "Children in foster care",
+       fill = "") + 
+  ggsave("./vis/cjlr/1.png", width = 8, height = 4)
+```
+
+```{r icwa-adopt-counts, fig.cap = "Children 21 and under in state-involved adoptions on reporting date by state and period. Data from AAIA surveys and AFCARS"}
+  ggplot(icwa_delta %>% 
+           mutate(race_ethn = 
+                    ifelse(race_ethn=="other",
+                           "Non-AIAN",
+                           race_ethn)),
+         aes(y = state, x = adopted, fill = period)) + 
+    geom_col(position = position_dodge2(reverse = T)) + 
+    facet_wrap(~race_ethn, scales = "free") + 
+    scale_fill_brewer(palette = "Dark2") + 
+    labs(y = "",
+         x = "Children in adoption",
+         fill = "") + 
+  ggsave("./vis/cjlr/1_2.png", width = 8, height = 4)
+
+#### make state-level proportional change over time 
+### for both outcomes
+```
+
+```{r icwa-pct, fig.cap = "Percent change in adoption and foster care caseloads between 1976 and 2019. Data from AAIA surveys and AFCARS"}
+
+icwa_delta_pct<-
+  icwa_delta %>% 
+  pivot_wider(id_cols = c(state, race_ethn),
+              names_from = period, 
+              values_from = c(fc, adopted)) %>% 
+  mutate(delta_fc = (fc_2019 / fc_1976 -1) * 100,
+         delta_adopt = (adopted_2019/adopted_1976 -1)*100) %>% 
+  select(state, race_ethn, delta_fc, delta_adopt) %>% 
+  pivot_longer(cols = delta_fc:delta_adopt) %>% 
+  mutate(name = ifelse(
+    name=="delta_fc",
+    "Foster care",
+    "Adoption"
+  ))
+
+### remove adoption states where we don't have AIAN ICWA numbers
+index<-icwa_delta_pct %>% 
+  filter(is.na(value))
+
+icwa_delta_pct <- icwa_delta_pct %>% 
+  mutate(value = ifelse(state%in%index$state & name == "Adoption",
+         NA,
+         value))
+
+ggplot(icwa_delta_pct %>% 
+         mutate(race_ethn =
+                  ifelse(race_ethn == "AIAN",
+                         race_ethn,
+                         "Non-AIAN")),
+       aes(x = value,
+           y = state,
+           fill = name)) + 
+  geom_col(position = position_dodge2(reverse = T)) + 
+  labs(y = "") +
+  geom_vline(xintercept = 0, lty = 2) +
+  scale_fill_brewer(palette = "Dark2") + 
+  facet_wrap(~race_ethn, scales = "free") + 
+  labs(fill = "", 
+       x = "Percent increase, 1976 to 2019") +
+  ggsave("./vis/cjlr/1_3.png", width = 8, height = 4)
+    
+  
+icwa_nat<-icwa_delta %>% 
+  filter(!state%in%index$state) %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc),
+            adopted = sum(adopted))
+
+
+### plus boarding
+total_inst<-icwa_delta %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc),
+            adopted = sum(adopted, na.rm=T)) %>% 
+  mutate(total = fc + adopted)
+```
+
+
+
+1. National table from CJLR
+2. State counts from CJLR
+3. Percent change from CJLR
+
+
+# National and state-level marginal probabilities
+
+pull from data leaders slides
+
+# Conditional probabilities
+
+pull from data leaders slides
+
+# Discussion
+
+# Conclusion
