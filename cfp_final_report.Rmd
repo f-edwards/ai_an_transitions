@@ -3,7 +3,7 @@ title: "Mechanisms of AIAN Inequality in Child Welfare Across U.S. States."
 author: "Frank Edwards and Theresa Rocha Beardall"
 date: "12/2020"
 abstract: "American Indian and Alaska Native children are separated from their families by state child welfare agencies at exceptionally high rates. This study connects contemporary trends in Native family separation to histories of Indian child removal, and locates places and institutional sites where inequality emerges."
-output: bookdown::html_document2
+output: bookdown::pdf_document2
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +20,6 @@ library(usmap)
 library(gridExtra)
 
 ```
-
 
 ```{r read-make}
 #### make data for easy load
@@ -64,7 +63,7 @@ clear statement on ongoing crisis of native family separation. aim of report is 
 ## Change since ICWA
 
 
-```{r}
+```{r icwa-setup}
 ####################################################################################
 ############## ICWA figures
 ####################################################################################
@@ -170,8 +169,7 @@ ggplot(icwa_delta %>%
   scale_fill_brewer(palette = "Dark2") + 
   labs(y = "",
        x = "Children in foster care",
-       fill = "") + 
-  ggsave("./vis/cjlr/1.png", width = 8, height = 4)
+       fill = "") 
 ```
 
 ```{r icwa-adopt-counts, fig.cap = "Children 21 and under in state-involved adoptions on reporting date by state and period. Data from AAIA surveys and AFCARS"}
@@ -186,8 +184,7 @@ ggplot(icwa_delta %>%
     scale_fill_brewer(palette = "Dark2") + 
     labs(y = "",
          x = "Children in adoption",
-         fill = "") + 
-  ggsave("./vis/cjlr/1_2.png", width = 8, height = 4)
+         fill = "") 
 
 #### make state-level proportional change over time 
 ### for both outcomes
@@ -233,9 +230,7 @@ ggplot(icwa_delta_pct %>%
   scale_fill_brewer(palette = "Dark2") + 
   facet_wrap(~race_ethn, scales = "free") + 
   labs(fill = "", 
-       x = "Percent increase, 1976 to 2019") +
-  ggsave("./vis/cjlr/1_3.png", width = 8, height = 4)
-    
+       x = "Percent increase, 1976 to 2019")
   
 icwa_nat<-icwa_delta %>% 
   filter(!state%in%index$state) %>% 
