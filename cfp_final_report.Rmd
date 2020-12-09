@@ -18,6 +18,7 @@ library(RColorBrewer)
 library(mapproj)
 library(usmap)
 library(gridExtra)
+theme_set(theme_bw())
 
 ```
 
@@ -45,6 +46,9 @@ clear statement on ongoing crisis of native family separation. aim of report is 
 # Data
 
 1. AAIA data
+
+As landmark data. Explain methods. Explain strengths, explain limitations. states included and selction criteria
+
 2. NCANDS
 3. AFCARS FC
 4. AFCARS Adoption
@@ -54,6 +58,12 @@ clear statement on ongoing crisis of native family separation. aim of report is 
 
 0. age distribution from SEER onto pep
 1. point-in-time comps
+
+AAIA compiled point-in-time estimates of the numbers of AIAN children 21 years of age and under in adoption or foster care in each state for which they were able to collect complete data through surveys of state agencies and private providers. We compare these numbers to counts of children in foster care at year-end and to total numbers of children in state-sponsored adoptions. Annual foster care counts are straightforward to compute with AFCARS, by restricting caseload counts to 
+
+
+EXPLAIN VARIABLE YEAR OF DATA COLLECTION FOR AAIA
+
 2. period lifetables (age-spec / lifetime)
 3. conditional probs
 4. imputation
@@ -61,7 +71,6 @@ clear statement on ongoing crisis of native family separation. aim of report is 
 # Findings 
 
 ## Change since ICWA
-
 
 ```{r icwa-setup}
 ####################################################################################
@@ -155,42 +164,6 @@ icwa_delta<-icwa_fc %>%
 ### make comparable national totals
 ### can't compare per cap rates
 ### pop denominators aren't comparable
-```
-
-```{r icwa-fc-counts, fig.cap = "Children in foster care on reporting date (caseload) by state and period. Data from AAIA surveys and AFCARS"}
-ggplot(icwa_delta %>% 
-         mutate(race_ethn = 
-                  ifelse(race_ethn=="other",
-                         "Non-AIAN",
-                         race_ethn)),
-       aes(y = state, x = fc, fill = period)) + 
-  geom_col(position = position_dodge2(reverse = T)) + 
-  facet_wrap(~race_ethn, scales = "free") + 
-  scale_fill_brewer(palette = "Dark2") + 
-  labs(y = "",
-       x = "Children in foster care",
-       fill = "") 
-```
-
-```{r icwa-adopt-counts, fig.cap = "Children 21 and under in state-involved adoptions on reporting date by state and period. Data from AAIA surveys and AFCARS"}
-  ggplot(icwa_delta %>% 
-           mutate(race_ethn = 
-                    ifelse(race_ethn=="other",
-                           "Non-AIAN",
-                           race_ethn)),
-         aes(y = state, x = adopted, fill = period)) + 
-    geom_col(position = position_dodge2(reverse = T)) + 
-    facet_wrap(~race_ethn, scales = "free") + 
-    scale_fill_brewer(palette = "Dark2") + 
-    labs(y = "",
-         x = "Children in adoption",
-         fill = "") 
-
-#### make state-level proportional change over time 
-### for both outcomes
-```
-
-```{r icwa-pct, fig.cap = "Percent change in adoption and foster care caseloads between 1976 and 2019. Data from AAIA surveys and AFCARS"}
 
 icwa_delta_pct<-
   icwa_delta %>% 
@@ -216,6 +189,70 @@ icwa_delta_pct <- icwa_delta_pct %>%
          NA,
          value))
 
+
+icwa_nat<-icwa_delta %>% 
+  filter(!state%in%index$state) %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc),
+            adopted = sum(adopted))
+
+
+### plus boarding
+total_inst<-icwa_delta %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc),
+            adopted = sum(adopted, na.rm=T)) %>% 
+  mutate(total = fc + adopted)
+
+icwa_nat_na<-icwa_delta %>% 
+  group_by(period, race_ethn) %>% 
+  summarise(fc = sum(fc, na.rm=T),
+            adopted = sum(adopted, na.rm=T))
+```
+
+We compare data collected by the Association on American Indian Affairs between 1973 and 1976 on American Indian and Alaska Native children in foster care and adoption to contemporary data on AIAN children in foster care and adoption collected through the Adoption and Foster Care Analysis and Reporting System between 2010 and 2019. Figure \@ref(fig:icwa-fc-counts) shows the total numbers of children in foster care as reported by AAIA in the mid-1970s and in AFCARS in 2019. There were `r icwa_nat_na$fc[1]` Native children in the 19 states for which AAIA collected data in the mid-1970s. In 2019, there were `r icwa_nat_na$fc[3]` Native children in foster care, an increase of `r round(((icwa_nat_na$fc[3] / icwa_nat_na$fc[1]) - 1) * 100,1)` AIAN children in foster care over this period. For non-Native children in these 19 states, caseloads increased by `r round(((icwa_nat_na$fc[4] / icwa_nat_na$fc[2]) - 1) * 100,1)` percent over the same period. 
+
+```{r icwa-fc-counts, fig.cap = "Children in foster care on reporting date (caseload) by state and period. Data from AAIA surveys and AFCARS"}
+ggplot(icwa_delta %>% 
+         mutate(race_ethn = 
+                  ifelse(race_ethn=="other",
+                         "Non-AIAN",
+                         race_ethn)),
+       aes(y = state, x = fc, fill = period)) + 
+  geom_col(position = position_dodge2(reverse = T)) + 
+  facet_wrap(~race_ethn, scales = "free") + 
+  scale_fill_brewer(palette = "Dark2") + 
+  labs(y = "",
+       x = "Children in foster care",
+       fill = "") 
+```
+
+Figure \@ref(fig:icwa-adopt-counts) displays counts of children 21 years of age or younger in state-involved adoptions for both the mid-1970s and 2019. Note that 6 of the 19 included states lack complete data on AIAN children in adoption in the AAIA data (Idaho, Maine, Nevada, New Mexico, New York, and Wyoming). For these 13 states with complete adoption data, AAIA estimated that there were `r icwa_nat$adopted[1]` Native children in state-involved adoptions in the mid-1970s. In these same 13 states, there were `r icwa_nat$adopted[3]` AIAN children in adoptions in 2019, an increase of `r round(((icwa_nat_na$adopted[3] / icwa_nat_na$adopted[1]) - 1) * 100,1)` percent. For non-native children in these states, there was a `r round(abs(((icwa_nat_na$adopted[2] / icwa_nat_na$adopted[4]) - 1) * 100),1)` percent reduction in the numbers of adopted children over the same period.
+
+`r round(((icwa_nat_na$fc[3] / icwa_nat_na$fc[1]) - 1) * 100,1)`
+
+```{r icwa-adopt-counts, fig.cap = "Children 21 and under in state-involved adoptions on reporting date by state and period. Data from AAIA surveys and AFCARS"}
+  ggplot(icwa_delta %>% 
+           mutate(race_ethn = 
+                    ifelse(race_ethn=="other",
+                           "Non-AIAN",
+                           race_ethn)),
+         aes(y = state, x = adopted, fill = period)) + 
+    geom_col(position = position_dodge2(reverse = T)) + 
+    facet_wrap(~race_ethn, scales = "free") + 
+    scale_fill_brewer(palette = "Dark2") + 
+    labs(y = "",
+         x = "Children in adoption",
+         fill = "") 
+
+#### make state-level proportional change over time 
+### for both outcomes
+```
+
+Figure \@ref(fig:icwa-pct) shows the relative change in adoptive and foster care caseloads between the mid-1970s and 2019 for these large Native population states. Of the 19 states with complete data, 14 saw growth in the numbers of Native children in foster care since the passage of ICWA. Of the 13 states with complete adoption data, 8 had more Native children in foster care in 2019 than in the mid-1970s prior to the passage of ICWA. For non-Native children, foster care caseloads were higher in 16 of 19 states and adoption caseloads were higher in 6 of the 13 states with complete data. Oklahoma saw the largest absolute growth in Native foster care caseloads. In the mid-1970s, there were `r icwa_delta %>% filter(state=="OK", race_ethn=="AIAN", period == 1976) %>% select(fc) ` Native chlidren in foster care in Oklahoma. In 2019, here were `r icwa_delta %>% filter(state=="OK", race_ethn=="AIAN", period == 2019) %>% select(fc) ` Native children in foster care in Oklahoma, a growth of nearly `r round(icwa_delta_pct %>% filter(state=="OK", name == "Foster care", race_ethn == "AIAN") %>% select(value), 0)` percent.
+
+```{r icwa-pct, fig.cap = "Percent change in adoption and foster care caseloads between 1976 and 2019. Data from AAIA surveys and AFCARS"}
+
 ggplot(icwa_delta_pct %>% 
          mutate(race_ethn =
                   ifelse(race_ethn == "AIAN",
@@ -232,27 +269,32 @@ ggplot(icwa_delta_pct %>%
   labs(fill = "", 
        x = "Percent increase, 1976 to 2019")
   
-icwa_nat<-icwa_delta %>% 
-  filter(!state%in%index$state) %>% 
-  group_by(period, race_ethn) %>% 
-  summarise(fc = sum(fc),
-            adopted = sum(adopted))
 
-
-### plus boarding
-total_inst<-icwa_delta %>% 
-  group_by(period, race_ethn) %>% 
-  summarise(fc = sum(fc),
-            adopted = sum(adopted, na.rm=T)) %>% 
-  mutate(total = fc + adopted)
 ```
 
+```{r}
+#COMPUTE GROWTH IN AIAN - GROWTH IN NONAIAN FOR WHICH GREW FASTER.
+icwa_delta_aian<-icwa_delta_pct %>% 
+  filter(race_ethn=="AIAN") %>% 
+  select(-race_ethn) %>% 
+  rename(aian_value = value)
+icwa_delta_non<-icwa_delta_pct %>% 
+  filter(race_ethn!="AIAN") %>% 
+  select(-race_ethn) %>% 
+  rename(non_aian_value = value)
 
+icwa_pct_diff<-icwa_delta_aian %>% 
+  left_join(icwa_delta_non) %>% 
+  mutate(diff = aian_value - non_aian_value)
 
-1. National table from CJLR
-2. State counts from CJLR
-3. Percent change from CJLR
+tab_higher<-icwa_pct_diff %>% 
+  group_by(name) %>% 
+  summarise(aian_higher = sum(diff>0, na.rm=T))
+```
 
+Foster care caseloads grew in many states for both non-AIAN and AIAN children. Of the 19 states included here, 12 saw higher growth in AIAN foster care caseloads than they saw in non-AIAN fooster care caseloads. Adoption caseloads also grew faster for AIAN children in these states than they did for non-AIAN children. In 7 of 13 states with complete data, AIAN adoption caseloads grew faster between the mid-1970s and 2019 than did non-AIAN adoption caseloads. 
+
+Of course, these data do not provide a complete comparative picture of Indian family separation over time. Until the late 20th century, American Indian and Alaska Native children were routinely removed from their families and sent to residential boarding schools. Approximately 25000 Native children were in Bureau of Indian Affairs boarding schools in 1973. This total is larger than the total number of Native children in foster care or adoption recorded by AAIA in 1976. There were more AIAN children in boarding schools in 1973 than were in foster care in 2019. While the scale of separation of Native children from their families through foster care and adoption has increased over time in these states, the absolute scale of the separation of Native children from their families has likely declined nationally with the end of the boarding school era.
 
 # National and state-level marginal probabilities
 
