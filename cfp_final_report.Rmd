@@ -296,11 +296,386 @@ Foster care caseloads grew in many states for both non-AIAN and AIAN children. O
 
 Of course, these data do not provide a complete comparative picture of Indian family separation over time. Until the late 20th century, American Indian and Alaska Native children were routinely removed from their families and sent to residential boarding schools. Approximately 25000 Native children were in Bureau of Indian Affairs boarding schools in 1973. This total is larger than the total number of Native children in foster care or adoption recorded by AAIA in 1976. There were more AIAN children in boarding schools in 1973 than were in foster care in 2019. While the scale of separation of Native children from their families through foster care and adoption has increased over time in these states, the absolute scale of the separation of Native children from their families has likely declined nationally with the end of the boarding school era.
 
-# National and state-level marginal probabilities
+## National and state-level marginal probabilities
+
+Figure \@ref(nat-marginal) shows the marginal probabilities of experiencing a series of child welfare system events for both Native and non-Native children. This plot shows national age-specific event probabilities at 2014-2018 risk levels for AIAN and non-AIAN children for experiencing 1) a screened-in investigation, 2) a confirmed maltreatment case, 3) a foster care placement, and 4) termination of parental rights through the child welfare system. DISCUSSION OF THIS. 
+
+```{r nat-marginal, fig.cap = "Marginal probability of child welfare event incidence for AIAN children by age 18, 2014 - 2018 risk levels, US totals"}
+##############################################################
+###### National age-spec risk
+##############################################################
+
+# make 2 x 2 age-spec plots for each outcome
+
+## stack tables for faceting
+plot_dat<-inv_nat_tab %>% 
+  group_by(race_ethn, age) %>% 
+  summarise(qmax = max(q) , qmin=min(q) , q = mean(q),
+            c = mean(c), cmax = max(c), cmin = min(c)) %>% 
+  ungroup() %>% 
+  mutate(var = "Investigation") %>% 
+  bind_rows(
+    sub_nat_tab %>% 
+      group_by(race_ethn, age) %>% 
+      summarise(qmax = max(q) , qmin=min(q) , q = mean(q),
+                c = mean(c), cmax = max(c), cmin = min(c)) %>% 
+      ungroup() %>% 
+      mutate(var = "Substantiation")
+  ) %>% 
+  bind_rows(
+    fc_nat_tab %>% 
+      group_by(race_ethn, age) %>% 
+      summarise(qmax = max(q) , qmin=min(q) , q = mean(q),
+                c = mean(c), cmax = max(c), cmin = min(c)) %>% 
+      ungroup() %>% 
+      mutate(var = "Foster Care")
+  ) %>% 
+  bind_rows(
+    tpr_nat_tab %>% 
+      group_by(race_ethn, age) %>% 
+      summarise(qmax = max(q) , qmin=min(q) , q = mean(q),
+                c = mean(c), cmax = max(c), cmin = min(c)) %>% 
+      ungroup() %>% 
+      mutate(var = "Termination")
+  ) %>% 
+  mutate(var = factor(var,
+                      levels = c("Investigation",
+                                 "Substantiation",
+                                 "Foster Care",
+                                 "Termination")))
+
+
+ggplot(plot_dat,
+       aes(x = age, y = q, ymin = qmin, ymax = qmax,
+           color = race_ethn, fill = race_ethn)) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.5, color = NA) +
+  labs(color = "", fill = "") + 
+  labs(x = "Age", y = "Probability") + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_wrap(~var)
+
+```
+
+THEN AGE-SPEC GEO FACET
+
+FOR INVESTIGATIONS
+
+
+```{r nat-inv-age, fig.cap = "Age specific risk of experiencing first CPS investigation by state, 2014 - 2018 risk levels"}
+ggplot(investigation_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q_c), qmin=min(q_c), q = mean(q_c)),
+       aes(x = age, y = q, ymin = qmin, ymax = qmax,
+           color = race_ethn, fill = race_ethn)) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.5, color = NA) + 
+  facet_geo(~state) + 
+  labs(color = "", fill = "") + 
+  theme_minimal() + 
+  labs(x = "Age", y = "Proportion of children") + 
+  theme(strip.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 4)) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") 
+
+```
+
+FOR FOSTER CARE
+
+```{r nat-fc-age, fig.cap = "Age specific probability of entering foster care, 2014 - 2018 risk levels"}
+ggplot(fc_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q_c), qmin=min(q_c), q = mean(q_c)),
+       aes(x = age, y = q, ymin = qmin, ymax = qmax,
+           color = race_ethn, fill = race_ethn)) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.5, color = NA) + 
+  facet_geo(~state) + 
+  labs(color = "", fill = "") + 
+  theme_minimal() + 
+  labs(x = "Age", y = "Proportion of children") + 
+  theme(strip.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 4)) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")
+```
+
+
+
+THEN HIGH RISK STATES FOR EACH OUTCOME FOR AGESPEC
+
+
+THEN CUMULATIVE MAP
+
+
+```{r cumul-map, fig.cap = "Cumulative risk of child welfare system event for AIAN children by age 18 at 2014 - 2018 risk levels"}
+#################################################################
+############# MAPS
+#################################################################
+### Lifetime risk
+
+map_dat<-investigation_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+### xwalk state maps onto abbreviations
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+                      
+
+
+inv_map<-ggplot(us_map %>% 
+         filter(!(is.na(var))),
+       aes(x = x, y = y, group = group,
+           fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Investigation") +
+  guides(fill = guide_colourbar(title.position = "top",
+                             label.position = "bottom",
+                             title.hjust = 0.5))
+
+map_dat<-subst_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+sub_map<-ggplot(us_map %>% 
+                  filter(!(is.na(var))),
+                aes(x = x, y = y, group = group,
+                    fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Substantation") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
+
+map_dat<-fc_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+fc_map<-ggplot(us_map %>% 
+                  filter(!(is.na(var))),
+                aes(x = x, y = y, group = group,
+                    fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Foster Care") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
+
+map_dat<-tpr_tables_c %>% 
+  filter(race_ethn=="AIAN") %>% 
+  group_by(state) %>% 
+  summarize(c = mean(c_c)) 
+
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+tpr_map<-ggplot(us_map %>% 
+                 filter(!(is.na(var))),
+               aes(x = x, y = y, group = group,
+                   fill = c)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  theme_void() + 
+  scale_fill_gradient2() +
+  theme(legend.position = "bottom") +
+  labs(fill = "TPR") +
+  guides(fill = guide_colourbar(title.position = "top",
+                                label.position = "bottom",
+                                title.hjust = 0.5))
+
+
+c_map<-grid.arrange(inv_map, sub_map,
+                    fc_map, tpr_map)
+
+
+```
+
+
+THEN INEQ MAP
+
+```{r}
+##################
+#### #### #### #### 
+#### rate ratio for inequality
+#### #### #### #### 
+### xwalk state maps onto abbreviations
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) 
+
+
+#### DO OTHER MAPS HERE
+
+  
+
+
+map_dat<-investigation_tables_c %>% 
+  group_by(state, race_ethn) %>% 
+  filter(c == min(c)) %>% 
+  mutate(var = "Investigation") %>% 
+  bind_rows(subst_tables_c %>% 
+              group_by(state, race_ethn) %>% 
+              filter(c == min(c)) %>% 
+              mutate(var = "Substantiation")) %>% 
+  bind_rows(fc_tables_c %>% 
+              group_by(state, race_ethn) %>% 
+              filter(c == min(c)) %>% 
+              mutate(var = "Foster Care")) %>% 
+  bind_rows(tpr_tables_c %>% 
+              group_by(state, race_ethn) %>% 
+              filter(c == min(c)) %>% 
+              mutate(var = "TPR")) %>% 
+  select(-.imp) %>% 
+  distinct()
+
+map_dat_wht<-map_dat %>% 
+  ungroup() %>% 
+  filter(race_ethn == "White") %>% 
+  rename(c_white = c_c) %>% 
+  select(-race_ethn, -c, -race_ethn)
+
+map_dat<-map_dat %>% 
+  filter(race_ethn=="AIAN") %>% 
+  left_join(map_dat_wht) %>% 
+  mutate(disp = c_c / c_white) 
+
+### slice into quantiles
+### xwalk state maps onto abbreviations
+us_map<-us_map()
+
+us_map<-us_map %>% 
+  left_join(map_dat %>% 
+              rename(abbr = state)) %>% 
+  mutate(var = factor(var,
+                      levels = c(
+                        "Investigation", 
+                        "Substantiation",
+                        "Foster Care",
+                        "TPR"
+                      )))
+
+### cut into an ordered categorical 
+
+us_map<-us_map %>% 
+  mutate(rate_ratio = 
+           case_when(
+             disp<0.5 ~ "0-0.5",
+             disp<1 ~ "0.5-1",
+             disp<1.5 ~ "1-1.5",
+             disp<2 ~ "1.5-2",
+             disp<3 ~ "2-3",
+             disp<4 ~ "3-4",
+             disp>=4 ~ "4+",
+           ),
+         rate_ratio = factor(rate_ratio,
+                             levels = c("0-0.5",
+                                        "0.5-1",
+                                        "1-1.5",
+                                        "1.5-2",
+                                        "2-3",
+                                        "3-4",
+                                        "4+")))
+
+
+ggplot(us_map,
+       aes(x = x, y = y, group = group,
+           fill = rate_ratio)) + 
+  geom_polygon(color = "black") + 
+  coord_fixed() +
+  facet_wrap(~var) + 
+  theme_void() + 
+  scale_fill_brewer(palette = "Purples") +
+  labs(fill = "AIAN / White\nRate Ratio")
+```
+
 
 pull from data leaders slides
 
 # Conditional probabilities
+
+```{r}
+##############################################################
+###### National conditionals
+##############################################################
+
+# make 2 x 2 age-spec plots for each conditional
+
+plot_dat<-cond_sub_inv %>% 
+  select(.imp, age, race_ethn, cond, var) %>% 
+  bind_rows(
+    cond_fc_inv %>% 
+      select(.imp, age, race_ethn, cond, var)) %>% 
+  bind_rows(cond_fc_sub %>% 
+              select(.imp, age, race_ethn, cond, var)) %>% 
+  bind_rows(
+    cond_tpr_fc %>% 
+      select(.imp, age, race_ethn, cond, var)
+  ) %>% 
+  group_by(age, race_ethn, var) %>% 
+  summarise(q = mean(cond),
+            qmin = min(cond),
+            qmax = max(cond))
+
+plot_dat<-plot_dat %>% 
+  mutate(var = case_when(
+    var == "P(FC|inv)" ~ "2. Foster care after investigation",
+    var == "P(FC|sub)" ~ "3. Foster care after substantiation",
+    var == "P(sub|inv)" ~ "1. Substantiation after investigation",
+    var == "P(TPR|FC)"  ~ "4. Termination after foster care"
+  )) 
+
+ggplot(plot_dat,
+       aes(x = age, y = q, ymin = qmin, ymax = qmax,
+           fill = race_ethn, color = race_ethn)) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.5, color = NA) + 
+  facet_wrap(~factor(var)) + 
+  labs(color = "", fill = "", x = "Age", y = "Conditional probability") + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") 
+```
 
 pull from data leaders slides
 
