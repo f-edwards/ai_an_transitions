@@ -10,7 +10,8 @@ output: bookdown::pdf_document2
 ### load packages and suppress warnings
 knitr::opts_chunk$set(echo = F, message = F, warning = F)
 library(tidyverse, warn.conflicts = FALSE)
-options(dplyr.summarise.inform = FALSE)
+options(dplyr.summarise.inform = FALSE,
+        knitr.kable.NA = " ")
 
 library(bookdown)
 library(geofacet)
@@ -45,13 +46,34 @@ clear statement on ongoing crisis of native family separation. aim of report is 
 
 # Data
 
-1. AAIA data
+This study relies on a number of data sources. First, we compile and digitize statistics collected by the Association for American Indian Affairs during the late 1960s and early to mid 1970s in an effort to document the breadth and depth of the Indian family separation crisis. To capture the contemporary exposure of AIAN children to the child welfare system, we rely on federal data systems collected by the US Children's Bureau. We use the 2014 - 2018 National Child Abuse and Neglect Data System (NCANDS) child files (CITE), the 2014 - 2018 Adoption and Foster Care Analysis and Reporting System (AFCARS) foster care files (CITE) and the 2010 - 2018 AFCARS adoption files (CITE). We use two data sources for contemporary population estimates: the US Census Bureau's Population Estimates Program (PEP) (CITE), and the National Institute of Healths' SEER population estimates (CITE).
 
-As landmark data. Explain methods. Explain strengths, explain limitations. states included and selction criteria
+## Historical child welfare system data
 
-2. NCANDS
-3. AFCARS FC
-4. AFCARS Adoption
+The Association on American Indian Affairs submitted a report titled "Indian Child Welfare Statistical Summary, July 1976" in support of the Indian Child Welfare Act (1978) during congressional hearings, included as Appendix G in hearings convened by the Select Committee on Indian Affairs on August 4, 1977. The results presented by AAIA were the result of multiple waves of surveys sent by AAIA to federal, state, local, and private service providers in 19 states with large AIAN populations (Alaska, Arizona, California, Idaho, Maine, Michigan, Minnesota, Montana, Nevada, New Mexico, New York, North Dakota, Oklahoma, Oregon, South Dakota, Utah, Washington, Wisconsin, and Wyoming). AAIA compiled statistics on the characteristics of both Native and non-Native children in foster care, in adoption, or in boarding programs for each of these states. 
+
+These data consistently provide point-in-time estimates of the numbers of Native and non-Native children in foster care, adoptions, or in Bureau of Indian Affairs boarding schools. During this period, some states did not collect information on race/ethnicity for children in foster care. When this was the case, AAIA imputed foster care caseload totals for Native and non-Native children by multiplying the total volume of children in foster care by the proportion of the population that was Native and non-Native respectively. This approach (as AAIA) acknowledges, likely produced conservative estimates of AIAN foster care caseloads in these states, as Native children were more likely than non-Native children to enter foster care in these states during this period. 
+
+These landmark data provided a first close-to-comprehensive national picture of the scale of Indian family separation by combining federal, state, and local data sources. These data provided much of the quantitative empirical foundation for the landmark reforms implemented in the Indian Child Welfare Act. While AAIA's imputation methods and geographic scope do not match contemporary data collection procedures, these data provide the most comprehensive historical data available to examine the scope of Indian family separation in the period immediately prior to the passage of the Indian Child Welfare Act.
+
+## Contemporary child welfare system data
+
+The federal government maintains a series of data sets documenting the operations of contemporary state and local child welfare systems. The National Child Abuse and Neglect Data System is a voluntary reporting system that documents all cases of alleged child maltreatment reported to a state or local child welfare hotline that are screened-in and receive an agency response (typically an investigation from a caseworker). Since the early 2010s, all 50 states have submitted these report-level data annually to the US Children's Bureau. Here, we use the NCANDS data to measure two events for AIAN (defined as American Indian or Alaska Native alone or in combination with any other racial or ethnic identification) children and white children (defined as non-hispanic white alone). Using within-state unique child identifiers, we document the first time a child was the subject of a screened-in CPS report, and the first time a child was the subject of a confirmed or substantiated CPS report over a five-year period (2014 - 2018). 
+
+To measure the frequency of family separation into the foster care system across states, we use the Adoption and Foster Care Analysis and Reporting System foster care files for 2014 - 2018. All states are required to submit foster care and adoption data for the AFCARS. The AFCARS provides a single row of data for each child for each year that child was in foster care for a partial or complete year. Details on placement settings are only recorded for the last placement a child was in during a reporting period. We use unique child identifiers in the AFCARS foster care data (that match unique identifiers in the NCANDS data) to identify the first time a child entered the foster care system, and to track characteristics of placements that child was in over time. These placement variables are limited by the scope of AFCARS. If a child was in multiple placement settings during the course of a year, only information about the final placement setting is recorded in the AFCARS foster care file. Thus, statistics on the prevalence of particular placement settings should be interpreted as conservative.
+
+The AFCARS adoption file provides detailed information on all children newly adopted with state or local child welfare agency involvement in the US each year. To provide point-in-time estimates of total numbers of children in adoptive homes, we aggregate data from 2010 - 2019, then evaluate the number of both Native and non-Native children in adoptive homes who would have been 21 years old or younger in 2019. We use the 21-year-old threshold for comparability with data collected by AAIA.
+
+## Population data
+
+To obtain valid estimates of the AIAN child population by age for US states between 2014 and 2018, we rely on two data sources. Our definition of American Indian and Alaska Native includes any individual who identifies as American Indian or Alaska Native alone or in combination with any other group. The US Census Bureau's Population and Housing Unit Estimates program uses baseline data from the 2010 Census along with various sources of demographic data to estimate age and race specific population totals for all counties in the US annually. It 
+
+SEER POP DATA
+
+ALONE OR IN COMBINATION PROBLEMS WITH BRIDGED ESTIMATES. CITE DEMOGRAPHY ON SHIFTS IN BASE POPULATION. 
+
+PEP POP DATA
+
 5. Population data
 
 # Methods
@@ -68,14 +90,9 @@ EXPLAIN VARIABLE YEAR OF DATA COLLECTION FOR AAIA
 3. conditional probs
 4. imputation
 
-# Findings 
-
-## Change since ICWA
+# Findings:Change since ICWA
 
 ```{r icwa-setup}
-####################################################################################
-############## ICWA figures
-####################################################################################
 
 ### ICWA AAIA data STATES
 
@@ -231,6 +248,7 @@ Figure \@ref(fig:icwa-adopt-counts) displays counts of children 21 years of age 
 
 `r round(((icwa_nat_na$fc[3] / icwa_nat_na$fc[1]) - 1) * 100,1)`
 
+
 ```{r icwa-adopt-counts, fig.cap = "Children 21 and under in state-involved adoptions on reporting date by state and period. Data from AAIA surveys and AFCARS"}
   ggplot(icwa_delta %>% 
            mutate(race_ethn = 
@@ -251,6 +269,8 @@ Figure \@ref(fig:icwa-adopt-counts) displays counts of children 21 years of age 
 
 Figure \@ref(fig:icwa-pct) shows the relative change in adoptive and foster care caseloads between the mid-1970s and 2019 for these large Native population states. Of the 19 states with complete data, 14 saw growth in the numbers of Native children in foster care since the passage of ICWA. Of the 13 states with complete adoption data, 8 had more Native children in foster care in 2019 than in the mid-1970s prior to the passage of ICWA. For non-Native children, foster care caseloads were higher in 16 of 19 states and adoption caseloads were higher in 6 of the 13 states with complete data. Oklahoma saw the largest absolute growth in Native foster care caseloads. In the mid-1970s, there were `r icwa_delta %>% filter(state=="OK", race_ethn=="AIAN", period == 1976) %>% select(fc) ` Native chlidren in foster care in Oklahoma. In 2019, here were `r icwa_delta %>% filter(state=="OK", race_ethn=="AIAN", period == 2019) %>% select(fc) ` Native children in foster care in Oklahoma, a growth of nearly `r round(icwa_delta_pct %>% filter(state=="OK", name == "Foster care", race_ethn == "AIAN") %>% select(value), 0)` percent.
 
+\newpage
+
 ```{r icwa-pct, fig.cap = "Percent change in adoption and foster care caseloads between 1976 and 2019. Data from AAIA surveys and AFCARS"}
 
 ggplot(icwa_delta_pct %>% 
@@ -268,11 +288,12 @@ ggplot(icwa_delta_pct %>%
   facet_wrap(~race_ethn, scales = "free") + 
   labs(fill = "", 
        x = "Percent increase, 1976 to 2019")
-  
-
 ```
 
-```{r}
+\newpage
+
+
+```{r icwa-growth}
 #COMPUTE GROWTH IN AIAN - GROWTH IN NONAIAN FOR WHICH GREW FASTER.
 icwa_delta_aian<-icwa_delta_pct %>% 
   filter(race_ethn=="AIAN") %>% 
@@ -296,16 +317,17 @@ Foster care caseloads grew in many states for both non-AIAN and AIAN children. O
 
 Of course, these data do not provide a complete comparative picture of Indian family separation over time. Until the late 20th century, American Indian and Alaska Native children were routinely removed from their families and sent to residential boarding schools. Approximately 25000 Native children were in Bureau of Indian Affairs boarding schools in 1973. This total is larger than the total number of Native children in foster care or adoption recorded by AAIA in 1976. There were more AIAN children in boarding schools in 1973 than were in foster care in 2019. While the scale of separation of Native children from their families through foster care and adoption has increased over time in these states, the absolute scale of the separation of Native children from their families has likely declined nationally with the end of the boarding school era.
 
-## National and state-level marginal probabilities
+\newpage
+
+# Findings:Contemporary risks of child welfare system contact
+
+INTRO WITH MOTIVATION - INCREASING SERIOUSNESS OF CONTACT, POSSIBILITY OF ESTIMATING POINTS OF INEQUALITY ACCELERATION
+
+## Age-specific risks
 
 Figure \@ref(nat-marginal) shows the marginal probabilities of experiencing a series of child welfare system events for both Native and non-Native children. This plot shows national age-specific event probabilities at 2014-2018 risk levels for AIAN and non-AIAN children for experiencing 1) a screened-in investigation, 2) a confirmed maltreatment case, 3) a foster care placement, and 4) termination of parental rights through the child welfare system. DISCUSSION OF THIS. 
 
 ```{r nat-marginal, fig.cap = "Marginal probability of child welfare event incidence for AIAN children by age 18, 2014 - 2018 risk levels, US totals"}
-##############################################################
-###### National age-spec risk
-##############################################################
-
-# make 2 x 2 age-spec plots for each outcome
 
 ## stack tables for faceting
 plot_dat<-inv_nat_tab %>% 
@@ -358,10 +380,7 @@ ggplot(plot_dat,
 
 ```
 
-THEN AGE-SPEC GEO FACET
-
-FOR INVESTIGATIONS
-
+Of course, there is substantial variation in risk of child welfare system contact across US states. EXPLAIN WHY THIS IS.  Figure\@ref(fig:nat-inv-age) shows the age-specific risk of experiencing a first screened-in investigation by US state for both AIAN and white children at 2014 - 2018 levels of risk. DESCRIBE FINDINGS
 
 ```{r nat-inv-age, fig.cap = "Age specific risk of experiencing first CPS investigation by state, 2014 - 2018 risk levels"}
 ggplot(investigation_tables %>% 
@@ -384,7 +403,7 @@ ggplot(investigation_tables %>%
 
 ```
 
-FOR FOSTER CARE
+There are also dramatic differences in risk of experiencing foster care across states. Figure \@ref(fig:nat-fc-age) shows the distribution of age-specific risks of first foster care entries for Native and white children by US state at 2014 - 2018 levels of risk. DESCRIBE FINDINGS
 
 ```{r nat-fc-age, fig.cap = "Age specific probability of entering foster care, 2014 - 2018 risk levels"}
 ggplot(fc_tables %>% 
@@ -406,19 +425,15 @@ ggplot(fc_tables %>%
   scale_color_brewer(palette = "Dark2")
 ```
 
-
-
 THEN HIGH RISK STATES FOR EACH OUTCOME FOR AGESPEC
 
+ADD PLOTS HERE
 
-THEN CUMULATIVE MAP
+## Lifetime event risks and inequalities in lifetime risk
 
+Figure \@ref(fig:cumul-map) displays the AIAN childrens' risk of ever experiencing each included child welfare system event by their age 18 at 2014 - 2018 levels of risk. DESCRIBE FINDINGS HERE
 
 ```{r cumul-map, fig.cap = "Cumulative risk of child welfare system event for AIAN children by age 18 at 2014 - 2018 risk levels"}
-#################################################################
-############# MAPS
-#################################################################
-### Lifetime risk
 
 map_dat<-investigation_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
@@ -531,25 +546,11 @@ c_map<-grid.arrange(inv_map, sub_map,
 ```
 
 
-THEN INEQ MAP
+Figure \@ref(fig:ineq-map) shows the ratio of AIAN lifetime event risk to white lifetime event risk for each state. DISCUSS FINDINGS HERE.
 
-```{r}
-##################
-#### #### #### #### 
-#### rate ratio for inequality
-#### #### #### #### 
-### xwalk state maps onto abbreviations
-us_map<-us_map()
-
-us_map<-us_map %>% 
-  left_join(map_dat %>% 
-              rename(abbr = state)) 
-
+```{r ineq-map, fig.cap = "Inequality in cumulative risk of child welfare system event for AIAN children by age 18 at 2014 - 2018 risk levels"}
 
 #### DO OTHER MAPS HERE
-
-  
-
 
 map_dat<-investigation_tables_c %>% 
   group_by(state, race_ethn) %>% 
@@ -568,7 +569,9 @@ map_dat<-investigation_tables_c %>%
               filter(c == min(c)) %>% 
               mutate(var = "TPR")) %>% 
   select(-.imp) %>% 
-  distinct()
+  distinct() %>% 
+  ungroup() %>% 
+  complete(state, race_ethn, var)
 
 map_dat_wht<-map_dat %>% 
   ungroup() %>% 
@@ -618,7 +621,6 @@ us_map<-us_map %>%
                                         "3-4",
                                         "4+")))
 
-
 ggplot(us_map,
        aes(x = x, y = y, group = group,
            fill = rate_ratio)) + 
@@ -626,19 +628,54 @@ ggplot(us_map,
   coord_fixed() +
   facet_wrap(~var) + 
   theme_void() + 
-  scale_fill_brewer(palette = "Purples") +
+  scale_fill_brewer(palette = "Purples", na.value = "grey45") +
   labs(fill = "AIAN / White\nRate Ratio")
 ```
 
+SUMMARY GRAF ON MARGINAL PROBABILITIES (AGE-SPEC AND CUMULATIVE)
 
-pull from data leaders slides
+\newpage
 
-# Conditional probabilities
+# Findings: conditional probability of subsequent child welfare events
 
-```{r}
-##############################################################
-###### National conditionals
-##############################################################
+Table \@ref(tab:mn-demo) show some cool things. EXPLAIN WHAT THESE MEASURE AND HOW THEY ARE COMPUTING
+
+```{r mn-demo, results = "asis"}
+
+mn<-investigation_tables %>% 
+  filter(.imp==1, age == 0, state == "MN") %>% 
+  select(var, race_ethn, pop_max, q_c) %>% 
+  mutate(name = "Investigations") %>% 
+  bind_rows(
+  subst_tables %>% 
+  filter(.imp==1, age == 0,  state == "MN") %>% 
+  select(var, race_ethn, pop_max, q_c) %>% 
+  mutate(name = "Confirmed maltreatment"))
+
+#### make descriptive table
+mn<-mn %>% 
+  filter(race_ethn=="AIAN") %>% 
+  mutate("Number of children" = round(var/5,0),
+         "Child population" = round(pop_max/5,0),
+         "Event rate" = round(`Number of children`/ `Child population`,2)) %>% 
+  select(name, `Number of children`, `Child population`, `Event rate`) 
+
+mn<-mn%>% 
+  mutate("Transition rate" = c(NA, round(mn$`Event rate`[2]/mn$`Event rate`[1],2))) %>% 
+  rename(" " = name)
+
+knitr::kable(mn,
+             caption = "How cases move upstream in Minnesota: AIAN infants",
+             )
+```
+
+
+To identify sites of institutional decision making where inequalities in AIAN child welfare system case processing emerge or are accelerated, we compute conditional event probabilities for 1) case substantiation, conditional on investigation; 2) foster care placement, conditional on investigation; 3) foster care placement, conditional on substantiation; and 4) termination of parental rights after foster care placement for both AIAN and white children. Figure \@ref(fig:nat-cond) displays the national risk levels for each event. 
+
+DISCUSS FINDINGS
+
+```{r nat-cond, fig.cap = "Risk of child welfare system event, conditional on prior system event at 2014 - 2018 levels of risk"}
+
 
 # make 2 x 2 age-spec plots for each conditional
 
@@ -677,7 +714,121 @@ ggplot(plot_dat,
   scale_color_brewer(palette = "Dark2") 
 ```
 
-pull from data leaders slides
+STATE LEVEL FINDINGS
+
+```{r sub-inv}
+ncands_sub_inv_tab<-subst_tables %>%
+  rename(sub = q_c) %>% 
+  select(.imp , age, race_ethn, state, sub) %>% 
+  left_join(investigation_tables %>% 
+              rename(inv = q_c) %>% 
+              select(.imp, age, race_ethn, state, inv)) %>% 
+  mutate(sub_inv = sub / inv) %>% 
+  filter(sub_inv<1,
+         !(is.na(sub_inv)))
+
+ggplot(ncands_sub_inv_tab %>% 
+  group_by(age, race_ethn, state) %>% 
+    summarise(qmin = min(sub_inv),
+              qmax = max(sub_inv),
+              q = mean(sub_inv)),
+  aes(x = age, y = q, color = race_ethn,
+      ymin = qmin, ymax = qmax, fill = race_ethn)) +
+  geom_line() + 
+  geom_ribbon(alpha = 0.5,
+              color = NA) + 
+  labs(fill = "", color = "",
+       y = "Probability", x = "Age") + 
+  facet_geo(~state) +
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")
+```
+
+
+```{r fc-inv}
+fc_cond_inv_tabs<-fc_post_inv_tables %>%
+  rename(fc_inv = q_c) %>% 
+  select(.imp,age,  race_ethn, state, fc_inv) %>% 
+  left_join(investigation_tables %>% 
+              rename(inv = q_c) %>% 
+              select(.imp, age, race_ethn, state, inv)) %>% 
+  mutate(fc_cond_inv = fc_inv / inv)
+
+ggplot(fc_cond_inv_tabs %>% 
+         group_by(age, race_ethn, state) %>% 
+         summarise(qmin = min(fc_cond_inv),
+                   qmax = max(fc_cond_inv),
+                   q = mean(fc_cond_inv)) %>% 
+         filter(!(is.na(q)),
+                q<1),
+       aes(x = age, y = q, color = race_ethn,
+           ymin = qmin, ymax = qmax, fill = race_ethn)) +
+  geom_line() + 
+  geom_ribbon(alpha = 0.5,
+              color = NA) + 
+  labs(fill = "", color = "",
+       y = "Probability", x = "Age") + 
+  facet_geo(~state) +
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")
+```
+
+```{r fc-sub}
+
+fc_cond_sub_tabs<-fc_sub_tables %>%
+  rename(fc_sub = q_c) %>% 
+  select(.imp,age,  race_ethn, state, fc_sub) %>% 
+  left_join(subst_tables %>% 
+              rename(sub = q_c) %>% 
+              select(.imp, age, race_ethn, state, sub)) %>% 
+  mutate(fc_cond_sub = fc_sub / sub)
+
+
+ggplot(fc_cond_sub_tabs %>% 
+         group_by(age, race_ethn, state) %>% 
+         summarise(qmin = min(fc_cond_sub),
+                   qmax = max(fc_cond_sub),
+                   q = mean(fc_cond_sub)) %>% 
+         filter(!(is.na(q)),
+                q<1),
+       aes(x = age, y = q, color = race_ethn,
+           ymin = qmin, ymax = qmax, fill = race_ethn)) +
+  geom_line() + 
+  geom_ribbon(alpha = 0.5,
+              color = NA) + 
+  labs(fill = "", color = "",
+       y = "Probability", x = "Age") + 
+  facet_geo(~state) +
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")
+```
+
+```{r non-icwa}
+non_icwa_cond_fc<-non_icwa_tables %>%
+  rename(non_icwa = q_c) %>% 
+  select(.imp, age, race_ethn, state, non_icwa) %>% 
+  left_join(fc_tables%>% 
+              rename(fc = q_c) %>% 
+              select(.imp, age, race_ethn, state, fc)) %>% 
+  mutate(non_icwa_fc = non_icwa / fc)
+
+ggplot(non_icwa_cond_fc %>% 
+         filter(race_ethn=="AIAN") %>% 
+         group_by(age, state) %>% 
+         summarise(qmin = min(non_icwa_fc),
+                   qmax = max(non_icwa_fc),
+                   q = mean(non_icwa_fc)) %>% 
+         filter(!(is.na(q)),
+                q<=1, qmax<=1),
+       aes(x = age, y = q,
+           ymin = qmin, ymax = qmax)) + 
+  geom_line() +
+  geom_ribbon(alpha = 0.5, color = NA) + 
+  facet_geo(~state) + 
+  labs(x = "Age", y = "Proportion") 
+```
+
+\newpage
 
 # Discussion
 
