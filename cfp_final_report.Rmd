@@ -114,7 +114,6 @@ icwa_st<-icwa %>%
 
 ## 
 
-
 afcars_caseload19<-read_csv("./data/afcars19_caseload.csv")
 afcars_caseload19<-afcars_caseload19 %>% 
   mutate(race_ethn = ifelse(AMIAKN==1,
@@ -127,34 +126,10 @@ afcars_caseload19<-afcars_caseload19 %>%
   select(st_fips, race_ethn, fc) %>% 
   filter(!is.na(race_ethn))
 
-# afcars_caseload<-read_csv("./data/state_first_fc.csv")%>%
-#   filter(.imp==1) %>% 
-#   rename(year = fy) %>%
-#   filter(state!=72) %>%
-#   rename(var = first_entry) %>%
-#   rename(st_fips = state) %>% 
-#   filter(year == 2018) %>% 
-#   mutate(race_ethn = ifelse(race_ethn=="AI/AN",
-#                             "AIAN",
-#                             "other")) %>% 
-#   group_by(st_fips, race_ethn) %>% 
-#   summarise(fc = sum(var)) %>% 
-#   ungroup() %>% 
-#   left_join(pop_seer_nat %>% 
-#               filter(age<=21) %>% 
-#               select(state, st_fips, age, race_ethn, pop) %>% 
-#               group_by(state, st_fips, race_ethn) %>% 
-#               summarize(pop = sum(pop)) %>% 
-#               ungroup()) %>% 
-#   filter(state%in%icwa_fc$state) %>% 
-#   ungroup()
-
-### add adoption data
-
 ### join with afcars adoption data
 afcars_caseload<-afcars_caseload19 %>% 
   left_join(afcars_adopt_caseload_19 %>% 
-  mutate(race_ethn = ifelse(race_ethn=="AIAN", 
+  mutate(race_ethn = ifelse(race_ethn=="AIAN",  
                             race_ethn,
                             "other")) %>% 
   mutate(n_non_preferred = ifelse(race_ethn=="AIAN",
@@ -170,7 +145,6 @@ afcars_caseload<-afcars_caseload19 %>%
 
 ### state comparisons
 icwa_delta<-icwa_fc %>% 
-  select(-St) %>% 
   mutate(race_ethn = ifelse(race_ethn=="White",
                             "other",
                             race_ethn)) %>% 

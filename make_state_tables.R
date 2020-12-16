@@ -436,21 +436,47 @@ tpr_cond<-tpr_tables_c%>%
 ## AAIA ICWA data
 
 icwa<-read_csv("./data/icwa_data.csv") 
+
 ### add state abbrev
 xwalk<-data.frame(State = as.character(state.name), 
-                  state.abb = as.character(state.abb))
-icwa<-icwa %>% 
-  left_join(xwalk)
-
-icwa<-icwa %>% 
+                  state.abb = as.character(state.abb)) %>% 
   mutate(AIAN = fc_aian,
          White = fc_non)
 
+icwa_adopt<-icwa %>% 
+  left_join(xwalk) %>% 
+  mutate(AIAN = adopted_aian,
+         White = adopted_non)
+
+icwa_boarding<-icwa %>% 
+  left_join(xwalk) %>% 
+  mutate(AIAN = bia_boarding74,
+         White = NA)
+
 icwa_fc<-icwa %>% 
-  select(state.abb, AIAN, White) %>% 
-  rename(state = state.abb) %>% 
+  left_join(xwalk) %>% 
+  ungroup() %>% 
+  mutate(AIAN = fc_aian,
+         White = fc_non) %>% 
+  select(State, state.abb, AIAN, White) %>% 
+  rename(state = state.abb,
+         St = State) %>% 
   pivot_longer(col = AIAN:White, 
                names_to = "race_ethn",
                values_to = "fc") %>% 
-  mutate(period = "1976") 
+  mutate(period = "1976") %>% 
+  left_join(icwa_adopt %>% 
+              select(State, state.abb, AIAN, White) %>% 
+              rename(state = state.abb,
+                     St = State) %>% 
+              pivot_longer(col = AIAN:White, 
+                           names_to = "race_ethn",
+                           values_to = "adopted")) %>% 
+  left_join(icwa_boarding %>% 
+              select(State, state.abb, AIAN, White) %>% 
+              rename(state = state.abb,
+                     St = State) %>% 
+              pivot_longer(col = AIAN:White, 
+                           names_to = "race_ethn",
+                           values_to = "boarding"))
 

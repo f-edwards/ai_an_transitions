@@ -20,11 +20,9 @@ for(i in 1:length(imps)){
     temp<-temp %>% 
       group_by(.imp, age, race_ethn) %>% 
       summarise(var = sum(var), 
-                pop = sum(pop),
-                pop_max = sum(pop_max)) %>% 
+                pop = sum(pop)) %>% 
       ungroup()
-    inv_nat_tab[[index]]<-make_life_table(temp %>% 
-                                            mutate(pop = pop_max))
+    inv_nat_tab[[index]]<-make_life_table(temp)
     index<-index+1
   }
 }
@@ -46,11 +44,9 @@ for(i in 1:length(imps)){
     temp<-temp %>% 
       group_by(.imp, age, race_ethn) %>% 
       summarise(var = sum(var), 
-                pop = sum(pop),
-                pop_max = sum(pop_max)) %>% 
+                pop = sum(pop)) %>% 
       ungroup()
-    sub_nat_tab[[index]]<-make_life_table(temp %>% 
-                                            mutate(pop = pop_max))
+    sub_nat_tab[[index]]<-make_life_table(temp)
     index<-index+1
   }
 }
@@ -72,11 +68,9 @@ for(i in 1:length(imps)){
     temp<-temp %>% 
       group_by(.imp, age, race_ethn) %>% 
       summarise(var = sum(var), 
-                pop = sum(pop),
-                pop_max = sum(pop_max)) %>% 
+                pop = sum(pop)) %>% 
       ungroup()
-    fc_nat_tab[[index]]<-make_life_table(temp %>% 
-                                           mutate(pop = pop_max))
+    fc_nat_tab[[index]]<-make_life_table(temp)
     index<-index+1
   }
 }
@@ -98,11 +92,9 @@ for(i in 1:length(imps)){
     temp<-temp %>% 
       group_by(.imp, age, race_ethn) %>% 
       summarise(var = sum(var), 
-                pop = sum(pop),
-                pop_max = sum(pop_max)) %>% 
+                pop = sum(pop)) %>% 
       ungroup()
-    tpr_nat_tab[[index]]<-make_life_table(temp %>% 
-                                            mutate(pop = pop_max))
+    tpr_nat_tab[[index]]<-make_life_table(temp)
     index<-index+1
   }
 }
@@ -144,11 +136,9 @@ for(i in 1:length(imps)){
     temp<-temp %>% 
       group_by(.imp, age, race_ethn) %>% 
       summarise(var = sum(var), 
-                pop = sum(pop),
-                pop_max = sum(pop_max)) %>% 
+                pop = sum(pop)) %>% 
       ungroup()
-      fc_inv_nat_tab[[index]]<-make_life_table(temp %>% 
-                                                      mutate(pop = pop_max))
+      fc_inv_nat_tab[[index]]<-make_life_table(temp)
     index<-index+1
   }
 }
@@ -184,11 +174,9 @@ for(i in 1:length(imps)){
     temp<-temp %>% 
       group_by(.imp, age, race_ethn) %>% 
       summarise(var = sum(var), 
-                pop = sum(pop),
-                pop_max = sum(pop_max)) %>% 
+                pop = sum(pop)) %>% 
       ungroup()
-    fc_sub_nat_tab[[index]]<-make_life_table(temp %>% 
-                                               mutate(pop = pop_max))
+    fc_sub_nat_tab[[index]]<-make_life_table(temp)
     index<-index+1
   }
 }
