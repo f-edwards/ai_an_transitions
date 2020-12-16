@@ -439,9 +439,7 @@ icwa<-read_csv("./data/icwa_data.csv")
 
 ### add state abbrev
 xwalk<-data.frame(State = as.character(state.name), 
-                  state.abb = as.character(state.abb)) %>% 
-  mutate(AIAN = fc_aian,
-         White = fc_non)
+                  state.abb = as.character(state.abb)) 
 
 icwa_adopt<-icwa %>% 
   left_join(xwalk) %>% 
@@ -454,6 +452,8 @@ icwa_boarding<-icwa %>%
          White = NA)
 
 icwa_fc<-icwa %>% 
+  mutate(AIAN = fc_aian,
+         White = fc_non) %>% 
   left_join(xwalk) %>% 
   ungroup() %>% 
   mutate(AIAN = fc_aian,

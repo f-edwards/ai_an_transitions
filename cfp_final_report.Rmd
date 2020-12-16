@@ -24,7 +24,7 @@ theme_set(theme_bw())
 ```
 
 ```{r read-make}
-#### make data for easy load
+# #### make data for easy load
 # source("make_state_tables.R")
 # source("make_national_tables.r")
 # source("read_adopt.r")
@@ -94,23 +94,13 @@ EXPLAIN VARIABLE YEAR OF DATA COLLECTION FOR AAIA
 
 ```{r icwa-setup}
 
-### ICWA AAIA data STATES
-
-icwa_fc<-icwa_fc %>% 
-  filter(!is.na(fc))
-
-
 ### ICWA DATA NAT
 
-icwa_nat<-icwa %>% 
-  filter(!(is.na(fc_aian))) %>% 
-  summarize(fc_aian = sum(fc_aian),
-            fc_non = sum(fc_non),
-            pop_aian21 = sum(pop_aian21),
-            pop_non = sum(pop_nonAIAN21))
-
-icwa_st<-icwa %>% 
-  filter(!(is.na(fc_aian))) 
+icwa_nat<-icwa_fc %>%
+  group_by(race_ethn) %>% 
+  summarize(fc = sum(fc, na.rm=T),
+            adopted = sum(adopted, na.rm=T),
+            boarding = sum(boarding, na.rm=T))
 
 ## 
 
@@ -359,7 +349,7 @@ Of course, there is substantial variation in risk of child welfare system contac
 ```{r nat-inv-age, fig.cap = "Age specific risk of experiencing first CPS investigation by state, 2014 - 2018 risk levels"}
 ggplot(investigation_tables %>% 
          group_by(state, race_ethn, age) %>% 
-         summarise(qmax = max(q_c), qmin=min(q_c), q = mean(q_c)),
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)),
        aes(x = age, y = q, ymin = qmin, ymax = qmax,
            color = race_ethn, fill = race_ethn)) + 
   geom_line() + 
@@ -382,7 +372,7 @@ There are also dramatic differences in risk of experiencing foster care across s
 ```{r nat-fc-age, fig.cap = "Age specific probability of entering foster care, 2014 - 2018 risk levels"}
 ggplot(fc_tables %>% 
          group_by(state, race_ethn, age) %>% 
-         summarise(qmax = max(q_c), qmin=min(q_c), q = mean(q_c)),
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)),
        aes(x = age, y = q, ymin = qmin, ymax = qmax,
            color = race_ethn, fill = race_ethn)) + 
   geom_line() + 
@@ -412,7 +402,7 @@ Figure \@ref(fig:cumul-map) displays the AIAN childrens' risk of ever experienci
 map_dat<-investigation_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 ### xwalk state maps onto abbreviations
 us_map<-us_map()
@@ -440,7 +430,7 @@ inv_map<-ggplot(us_map %>%
 map_dat<-subst_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 us_map<-us_map()
 
@@ -465,7 +455,7 @@ sub_map<-ggplot(us_map %>%
 map_dat<-fc_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 us_map<-us_map()
 
@@ -490,7 +480,7 @@ fc_map<-ggplot(us_map %>%
 map_dat<-tpr_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 us_map<-us_map()
 
@@ -550,13 +540,13 @@ map_dat<-investigation_tables_c %>%
 map_dat_wht<-map_dat %>% 
   ungroup() %>% 
   filter(race_ethn == "White") %>% 
-  rename(c_white = c_c) %>% 
-  select(-race_ethn, -c, -race_ethn)
+  rename(c_white = c) %>% 
+  select(-race_ethn)
 
 map_dat<-map_dat %>% 
   filter(race_ethn=="AIAN") %>% 
   left_join(map_dat_wht) %>% 
-  mutate(disp = c_c / c_white) 
+  mutate(disp = c / c_white) 
 
 ### slice into quantiles
 ### xwalk state maps onto abbreviations
@@ -618,19 +608,19 @@ Table \@ref(tab:mn-demo) show some cool things. EXPLAIN WHAT THESE MEASURE AND H
 
 mn<-investigation_tables %>% 
   filter(.imp==1, age == 0, state == "MN") %>% 
-  select(var, race_ethn, pop_max, q_c) %>% 
+  select(var, race_ethn, pop, q) %>% 
   mutate(name = "Investigations") %>% 
   bind_rows(
   subst_tables %>% 
   filter(.imp==1, age == 0,  state == "MN") %>% 
-  select(var, race_ethn, pop_max, q_c) %>% 
+  select(var, race_ethn, pop, q) %>% 
   mutate(name = "Confirmed maltreatment"))
 
 #### make descriptive table
 mn<-mn %>% 
   filter(race_ethn=="AIAN") %>% 
   mutate("Number of children" = round(var/5,0),
-         "Child population" = round(pop_max/5,0),
+         "Child population" = round(pop/5,0),
          "Event rate" = round(`Number of children`/ `Child population`,2)) %>% 
   select(name, `Number of children`, `Child population`, `Event rate`) 
 
@@ -692,10 +682,10 @@ STATE LEVEL FINDINGS
 
 ```{r sub-inv}
 ncands_sub_inv_tab<-subst_tables %>%
-  rename(sub = q_c) %>% 
+  rename(sub = q) %>% 
   select(.imp , age, race_ethn, state, sub) %>% 
   left_join(investigation_tables %>% 
-              rename(inv = q_c) %>% 
+              rename(inv = q) %>% 
               select(.imp, age, race_ethn, state, inv)) %>% 
   mutate(sub_inv = sub / inv) %>% 
   filter(sub_inv<1,
@@ -721,10 +711,10 @@ ggplot(ncands_sub_inv_tab %>%
 
 ```{r fc-inv}
 fc_cond_inv_tabs<-fc_post_inv_tables %>%
-  rename(fc_inv = q_c) %>% 
+  rename(fc_inv = q) %>% 
   select(.imp,age,  race_ethn, state, fc_inv) %>% 
   left_join(investigation_tables %>% 
-              rename(inv = q_c) %>% 
+              rename(inv = q) %>% 
               select(.imp, age, race_ethn, state, inv)) %>% 
   mutate(fc_cond_inv = fc_inv / inv)
 
@@ -750,10 +740,10 @@ ggplot(fc_cond_inv_tabs %>%
 ```{r fc-sub}
 
 fc_cond_sub_tabs<-fc_sub_tables %>%
-  rename(fc_sub = q_c) %>% 
+  rename(fc_sub = q) %>% 
   select(.imp,age,  race_ethn, state, fc_sub) %>% 
   left_join(subst_tables %>% 
-              rename(sub = q_c) %>% 
+              rename(sub = q) %>% 
               select(.imp, age, race_ethn, state, sub)) %>% 
   mutate(fc_cond_sub = fc_sub / sub)
 
@@ -779,10 +769,10 @@ ggplot(fc_cond_sub_tabs %>%
 
 ```{r non-icwa}
 non_icwa_cond_fc<-non_icwa_tables %>%
-  rename(non_icwa = q_c) %>% 
+  rename(non_icwa = q) %>% 
   select(.imp, age, race_ethn, state, non_icwa) %>% 
   left_join(fc_tables%>% 
-              rename(fc = q_c) %>% 
+              rename(fc = q) %>% 
               select(.imp, age, race_ethn, state, fc)) %>% 
   mutate(non_icwa_fc = non_icwa / fc)
 
