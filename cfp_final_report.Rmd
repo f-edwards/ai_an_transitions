@@ -8,11 +8,7 @@ output: bookdown::pdf_document2
 
 ```{r setup, include=FALSE}
 ### load packages and suppress warnings
-knitr::opts_chunk$set(echo = F, message = F, warning = F)
 library(tidyverse, warn.conflicts = FALSE)
-options(dplyr.summarise.inform = FALSE,
-        knitr.kable.NA = " ")
-
 library(bookdown)
 library(geofacet)
 library(RColorBrewer)
@@ -21,6 +17,11 @@ library(usmap)
 library(gridExtra)
 theme_set(theme_bw())
 
+# options
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+options(dplyr.summarise.inform = FALSE,
+        knitr.kable.NA = " ")
+options(scipen=999)
 ```
 
 ```{r read-make}
@@ -58,7 +59,9 @@ These landmark data provided a first close-to-comprehensive national picture of 
 
 ## Contemporary child welfare system data
 
-The federal government maintains a series of data sets documenting the operations of contemporary state and local child welfare systems. The National Child Abuse and Neglect Data System is a voluntary reporting system that documents all cases of alleged child maltreatment reported to a state or local child welfare hotline that are screened-in and receive an agency response (typically an investigation from a caseworker). Since the early 2010s, all 50 states have submitted these report-level data annually to the US Children's Bureau. Here, we use the NCANDS data to measure two events for AIAN (defined as American Indian or Alaska Native alone or in combination with any other racial or ethnic identification) children and white children (defined as non-hispanic white alone). Using within-state unique child identifiers, we document the first time a child was the subject of a screened-in CPS report, and the first time a child was the subject of a confirmed or substantiated CPS report over a five-year period (2014 - 2018). 
+The federal government maintains a series of data sets documenting the operations of contemporary state and local child welfare systems. The National Child Abuse and Neglect Data System is a voluntary reporting system that documents all cases of alleged child maltreatment reported to a state or local child welfare hotline that are screened-in and receive an agency response (typically an investigation from a caseworker). Since the early 2010s, all 50 states have submitted these report-level data annually to the US Children's Bureau. 
+
+Here, we use the NCANDS data to measure two events for AIAN (defined as American Indian or Alaska Native alone or in combination with any other racial or ethnic identification) children and white children (defined as non-hispanic white alone). Using within-state unique child identifiers, we document the first time a child was the subject of a screened-in CPS report, and the first time a child was the subject of a confirmed or substantiated CPS report over a five-year period (2014 - 2018). Note that child identifiers for Georgia, Pennsylvania, and Rhode Island were not reliable over time for children with unsubstantiated screened-in cases. These states are exluded from analysis of risk of investigation, but included in all other analyses.
 
 To measure the frequency of family separation into the foster care system across states, we use the Adoption and Foster Care Analysis and Reporting System foster care files for 2014 - 2018. All states are required to submit foster care and adoption data for the AFCARS. The AFCARS provides a single row of data for each child for each year that child was in foster care for a partial or complete year. Details on placement settings are only recorded for the last placement a child was in during a reporting period. We use unique child identifiers in the AFCARS foster care data (that match unique identifiers in the NCANDS data) to identify the first time a child entered the foster care system, and to track characteristics of placements that child was in over time. These placement variables are limited by the scope of AFCARS. If a child was in multiple placement settings during the course of a year, only information about the final placement setting is recorded in the AFCARS foster care file. Thus, statistics on the prevalence of particular placement settings should be interpreted as conservative.
 
@@ -66,31 +69,45 @@ The AFCARS adoption file provides detailed information on all children newly ado
 
 ## Population data
 
-To obtain valid estimates of the AIAN child population by age for US states between 2014 and 2018, we rely on two data sources. Our definition of American Indian and Alaska Native includes any individual who identifies as American Indian or Alaska Native alone or in combination with any other group. The US Census Bureau's Population and Housing Unit Estimates program uses baseline data from the 2010 Census along with various sources of demographic data to estimate age and race specific population totals for all counties in the US annually. It 
+To obtain valid estimates of the AIAN child population by age for US states between 2014 and 2018, we rely on the US Census Population and Housing Units Estimate Program (CITE STATE BY 5 RACE ALONE OR COMB FILE). Our definition of American Indian and Alaska Native includes any individual who identifies as American Indian or Alaska Native alone or in combination with any other group. The US Census Bureau's Population and Housing Unit Estimates program uses baseline data from the 2010 Census along with various sources of demographic data to estimate age and race specific population totals for all counties in the US annually. At the state-level, this program provide single-age estimates of the population that identifies as American Indian / Alaska Native alone or in combination with any other group(s). These estimates are imputed by the US Census based on 2010 US Census baseline estimates and various demographic indicators for each locality to project population change.
 
-SEER POP DATA
+Unfortunately, we are not able to leverage Census population data directly to make comparisons of the incidence rate of family separation over time expressed as rates per capita. Changes in the enumeration of the AIAN population between 1976 and 2019 make such comparisons impractical. For example, the US Census enumerated approximately 1.4 million American Indians and Alaska Natives in the 1980 decennial count, a 70 percent increase over the 1970 decennial census. Such dramatic shifts are largely explained by the Census changing its methodology for determining race/ethnicity of a subject. Until 1970, the Census worker reported a subject's race/ethnicity based on worker observations. In 1980, the Census changed to self-identification of race/ethnicity (Lujan: American Indians and Alaska Natives Count). In 1990, the Census counted about 2 million American Indians and Alaska Native, an approximately 40 percent increase from the prior Census. By 2000, the Census reported 4.2 million American Indians and Alaska Natives living in the United States, more than double the 2000 population count. Such changes are not driven by demography alone (fertlity, mortality, migration), but instead are an artifact of shifting methods of enumerating the racial and ethnic identities of US residents by the Census Bureau. Shifting Census methods, enabling individuals to identify their own group membership, and to identify membership in multiple groups have dramatically changed official estimates of the size of the AIAN population. This makes direct comparisons of historical AIAN population counts to contemporary AIAN population counts problematic.
 
-ALONE OR IN COMBINATION PROBLEMS WITH BRIDGED ESTIMATES. CITE DEMOGRAPHY ON SHIFTS IN BASE POPULATION. 
-
-PEP POP DATA
+For contemporary risk estimates, we rely on age-specific estimates of the population who identify as AIAN alone or in combination with any other group between 2014 and 2018 by state computed by the Census Population and Housing Units Estimation Program. We do not attempt here to make historical comparisons of incident rates of events between the contemporary period and the pre-ICWA period.
 
 5. Population data
 
 # Methods
 
-0. age distribution from SEER onto pep
-1. point-in-time comps
+## Historical comparisons
 
-AAIA compiled point-in-time estimates of the numbers of AIAN children 21 years of age and under in adoption or foster care in each state for which they were able to collect complete data through surveys of state agencies and private providers. We compare these numbers to counts of children in foster care at year-end and to total numbers of children in state-sponsored adoptions. Annual foster care counts are straightforward to compute with AFCARS, by restricting caseload counts to 
+We directly compare counts of children experiencing family separation through adoption and foster care in the states surveyed by AAIA in 1976 to counts of children in foster care or adoption in 2019. Because historical and contemporary AIAN population estimates are incompatible, we do not provide estimates as per capita rates. AAIA reports point-in-time counts of children in foster care or adoption by state. For comparability, we compute point-in-time contemporary foster care caseloads by counting the number of children in foster care at the end of the reporting year in 2019, and adoption caseloads by using annual counts of new adoptions from 2010-2019 and estimating the number of children concurrently in adoptive homes under the age of 21 (for comparability with AAIA measures, which used 21 as the age threshold for inclusion). We compare counts of AIAN and non-AIAN children in each system for states included in the AIAN data at these two time points, then compare aggregate totals of children in some form of state-involved family separation across these two time periods.
 
+## Age-specific and lifetime risks
 
-EXPLAIN VARIABLE YEAR OF DATA COLLECTION FOR AAIA
+For each child welfare system outcome examined here (investigations, substantiations, foster care entries, terminations of parental rights), we use 2014 - 2018 NCANDS and AFCARS data to estimate period life tables for each state for AIAN children and white children separately. Period life tables share some of the analytic benefits of cohort life tables. In a cohort life table, analysts track the incidence of an outcome across a group over the life course, adjusting for mortality and prior-event incidence. When a cohort life table is impractical because of data limitations or shifts in risk over time, a period life table allows for a simulation of risk over the life course by assuming that age-specific risks remain static at the levels observed during the focal period.
 
-2. period lifetables (age-spec / lifetime)
-3. conditional probs
-4. imputation
+In this study, we use 5 years of child welfare and population data to estimate the risk of a first child welfare event for each group and age. We then apply these age-specific risk estimates to a hypothetical cohort of 100,000 infants for each group and state, counting the number of events that would have occurred in this cohort at 2014-2018 levels of age-specific risk and age-specific mortality (CITE THE DEMOGRAPHY BOOK). The key assumption of this method is that event and mortality risk levels remain relatively stable over the period. Caution is due in using these data to extrapolate to future periods, as both event risk and mortality risk may shift over time.
 
-# Findings:Change since ICWA
+## Case processing and conditional probabilities
+
+Period life tables provide us with rigorous estimates of the marginal probability that a child would experience a particular event in a focal population at a fixed level of risk. In this study, we are interested in identifying the institutional sites at which inequalities emerge or are exacerbated. To do so, we compute the conditional probability of successive steps in child welfare case processing -- the probability of substantiation after investigation; the probability of foster care after investigation; the probability of foster care after substantiation; and the probability of parental rights termination after foster care. 
+
+To do so, we first estimates period life tables for the joint event of each combination of outcomes. For example, we link the NCANDS and AFCARS foster care data using unique child identifiers to estimate the joint probability that a child experience both a CPS investigation *and* a later foster care entry. Once we estimate this join probability, we can compute the conditional probability as follows:
+
+\[\textrm{Pr}(a|b) = \frac{\textrm{Pr}(a,b)}{\textrm{Pr}(b)}\]
+
+These conditional probabilities provide information on the likelihood that a child will move up the case processing ladder from one state to the next. By comparing the conditional probabilities of case processing outcomes separately for AIAN and white children across states, we can identify the states of child protection case processing during which inequalities emerge for AIAN children relative to white children. 
+
+It is important to note that while state-level analyses provide far more insight into local processes than do national analyses, working at the state-level may obscure important differences in system practices and outcomes occurring at county or local levels. This is particularly relevant for states with county-administered child protection systems. Because of data-masking procedures in the NCANDS/AFCARS, analyses at the county-level are not consistently possible for non-urban locales.
+
+## Missing data and imputation
+
+A small proportion of cases in the NCANDS and AFCARS are missing data on focal variables including child race/ethnicity and caretaker race/ethnicity. To address this missing data and ensure that our results are not negatively biased through listwise deletion, we compute multiple imputations of the NCANDS and AFCARS at the report or child level using pseudo Bayesian methods as developed by Van Buuren (https://www.jstatsoft.org/article/view/v045i03). These models include child-level predictors such as age and sex in addition to including state-level population composition predictors to adjust for hetereogeneity in the racial composition of populations across states. All results reported in the figures below display uncertainty intervals that reflect the maximum and minimum estimates of each statistic, reflecting uncertainty driven by missing data. In most cases, this uncertainty is relatively small.
+
+# Findings
+
+## Change Since ICWA
 
 ```{r icwa-setup}
 
@@ -210,9 +227,6 @@ ggplot(icwa_delta %>%
 
 Figure \@ref(fig:icwa-adopt-counts) displays counts of children 21 years of age or younger in state-involved adoptions for both the mid-1970s and 2019. Note that 6 of the 19 included states lack complete data on AIAN children in adoption in the AAIA data (Idaho, Maine, Nevada, New Mexico, New York, and Wyoming). For these 13 states with complete adoption data, AAIA estimated that there were `r icwa_nat$adopted[1]` Native children in state-involved adoptions in the mid-1970s. In these same 13 states, there were `r icwa_nat$adopted[3]` AIAN children in adoptions in 2019, an increase of `r round(((icwa_nat_na$adopted[3] / icwa_nat_na$adopted[1]) - 1) * 100,1)` percent. For non-native children in these states, there was a `r round(abs(((icwa_nat_na$adopted[2] / icwa_nat_na$adopted[4]) - 1) * 100),1)` percent reduction in the numbers of adopted children over the same period.
 
-`r round(((icwa_nat_na$fc[3] / icwa_nat_na$fc[1]) - 1) * 100,1)`
-
-
 ```{r icwa-adopt-counts, fig.cap = "Children 21 and under in state-involved adoptions on reporting date by state and period. Data from AAIA surveys and AFCARS"}
   ggplot(icwa_delta %>% 
            mutate(race_ethn = 
@@ -233,7 +247,7 @@ Figure \@ref(fig:icwa-adopt-counts) displays counts of children 21 years of age 
 
 Figure \@ref(fig:icwa-pct) shows the relative change in adoptive and foster care caseloads between the mid-1970s and 2019 for these large Native population states. Of the 19 states with complete data, 14 saw growth in the numbers of Native children in foster care since the passage of ICWA. Of the 13 states with complete adoption data, 8 had more Native children in foster care in 2019 than in the mid-1970s prior to the passage of ICWA. For non-Native children, foster care caseloads were higher in 16 of 19 states and adoption caseloads were higher in 6 of the 13 states with complete data. Oklahoma saw the largest absolute growth in Native foster care caseloads. In the mid-1970s, there were `r icwa_delta %>% filter(state=="OK", race_ethn=="AIAN", period == 1976) %>% select(fc) ` Native chlidren in foster care in Oklahoma. In 2019, here were `r icwa_delta %>% filter(state=="OK", race_ethn=="AIAN", period == 2019) %>% select(fc) ` Native children in foster care in Oklahoma, a growth of nearly `r round(icwa_delta_pct %>% filter(state=="OK", name == "Foster care", race_ethn == "AIAN") %>% select(value), 0)` percent.
 
-\newpage
+
 
 ```{r icwa-pct, fig.cap = "Percent change in adoption and foster care caseloads between 1976 and 2019. Data from AAIA surveys and AFCARS"}
 
@@ -253,8 +267,6 @@ ggplot(icwa_delta_pct %>%
   labs(fill = "", 
        x = "Percent increase, 1976 to 2019")
 ```
-
-\newpage
 
 
 ```{r icwa-growth}
@@ -277,19 +289,20 @@ tab_higher<-icwa_pct_diff %>%
   summarise(aian_higher = sum(diff>0, na.rm=T))
 ```
 
-Foster care caseloads grew in many states for both non-AIAN and AIAN children. Of the 19 states included here, 12 saw higher growth in AIAN foster care caseloads than they saw in non-AIAN fooster care caseloads. Adoption caseloads also grew faster for AIAN children in these states than they did for non-AIAN children. In 7 of 13 states with complete data, AIAN adoption caseloads grew faster between the mid-1970s and 2019 than did non-AIAN adoption caseloads. 
+Foster care caseloads grew in many states for both non-AIAN and AIAN children. Of the 19 states included here, 12 saw higher growth in AIAN foster care caseloads than they saw in non-AIAN foster care caseloads. Adoption caseloads also grew faster for AIAN children in these states than they did for non-AIAN children. In 7 of 13 states with complete data, AIAN adoption caseloads grew faster between the mid-1970s and 2019 than did non-AIAN adoption caseloads. 
 
 Of course, these data do not provide a complete comparative picture of Indian family separation over time. Until the late 20th century, American Indian and Alaska Native children were routinely removed from their families and sent to residential boarding schools. Approximately 25000 Native children were in Bureau of Indian Affairs boarding schools in 1973. This total is larger than the total number of Native children in foster care or adoption recorded by AAIA in 1976. There were more AIAN children in boarding schools in 1973 than were in foster care in 2019. While the scale of separation of Native children from their families through foster care and adoption has increased over time in these states, the absolute scale of the separation of Native children from their families has likely declined nationally with the end of the boarding school era.
 
-\newpage
+## Contemporary risks of child welfare system contact
 
-# Findings:Contemporary risks of child welfare system contact
+We now explore in detail the contours of the contemporary exposure of AIAN children and families to various forms of child welfare system contact. We first present age-specific risks of successive child welfare events. Next, we provide cumulative (life time) risks of child welfare event incidence. Finally, we estimate and visualize conditional probabilities of experiencing successive child welfare events, illustrating differences in case processing for Native and non-Native children across states. All analyses below rely on pooled state-level 2014 - 2018 data on child welfare system events from the NCANDS child file and AFCARS foster care file, along with pooled state-level data on child populations from the Census Population and Housing units Estimation Program. 
 
-INTRO WITH MOTIVATION - INCREASING SERIOUSNESS OF CONTACT, POSSIBILITY OF ESTIMATING POINTS OF INEQUALITY ACCELERATION
+All estimates should be interpreted as risks at 2014 - 2018 levels. Caution should be exercised in using these estimates to project risk to future periods. 
 
-## Age-specific risks
+### Age-specific risks
 
-Figure \@ref(nat-marginal) shows the marginal probabilities of experiencing a series of child welfare system events for both Native and non-Native children. This plot shows national age-specific event probabilities at 2014-2018 risk levels for AIAN and non-AIAN children for experiencing 1) a screened-in investigation, 2) a confirmed maltreatment case, 3) a foster care placement, and 4) termination of parental rights through the child welfare system. DISCUSSION OF THIS. 
+Figure \@ref(fig:nat-marginal) shows the marginal probabilities of experiencing a series of child welfare system events for both Native and non-Native children. This plot shows national age-specific event probabilities at 2014-2018 risk levels for AIAN and non-AIAN children for experiencing 1) a screened-in investigation, 2) a confirmed maltreatment case, 3) a foster care placement, and 4) termination of parental rights through the child welfare system. 
+
 
 ```{r nat-marginal, fig.cap = "Marginal probability of child welfare event incidence for AIAN children by age 18, 2014 - 2018 risk levels, US totals"}
 
@@ -344,7 +357,24 @@ ggplot(plot_dat,
 
 ```
 
-Of course, there is substantial variation in risk of child welfare system contact across US states. EXPLAIN WHY THIS IS.  Figure\@ref(fig:nat-inv-age) shows the age-specific risk of experiencing a first screened-in investigation by US state for both AIAN and white children at 2014 - 2018 levels of risk. DESCRIBE FINDINGS
+Across all outcomes, and for both Native and white children, infants are at highest risk of child welfare system contact. About `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Investigation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of Native infants experience a CPS investigation nationally, and about `r plot_dat %>% filter(age==0, race_ethn=="White", var=="Investigation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of white infants experience a CPS investigation. About `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Substantiation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of AIAN children experience an agency confirmed maltreatment case before their first birthday, compared with about `r plot_dat %>% filter(age==0, race_ethn=="White", var=="Substantiation") %>% select(q) %>% mutate(q = round(q*100, 1))`. About `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Foster Care") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of AIAN children are removed from their families and placed into foster care before their first birthday, and about `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Termination") %>% select(q) %>% mutate(q = round(q*100, 1))`. Risk of a first event declines steadily with age for both groups. 
+
+Nationally at 2014 - 2018 risk levels, white children are at higher risk of investigation at all ages, risks of substantiation are similar for white and Native children, risks of foster care are higher for native children, and risks for termination are slightly higher for native children.
+
+
+Of course, there is substantial variation in risk of child welfare system contact across US states. States have tremendous flexibility in designing and implementing both child welfare surveillance systems and foster care systems. The character of government-to-government relationships between tribes and states varies tremendously across places. Federal law also differentially affects tribal governance and the relationships between states, counties and tribes across places (CITES).  Figure\@ref(fig:nat-inv-age) shows the age-specific risk of experiencing a first screened-in investigation by US state for both AIAN and white children at 2014 - 2018 levels of risk. 
+
+```{r}
+### for state infant comparisons
+temp<-investigation_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+  filter(age==0) %>% 
+  arrange(desc(q)) %>% 
+  ungroup()
+```
+
+Infants are at highest risk of investigation in all states, and the shape of the age-risk curve is similar to the national pattern shown in Figure \@ref(fig:nat-marginal). Risk tends to be markedly higher for infants, and decline slowly with age. However, there is tremendous variation in levels of risk across states, and clear regional patterning in inequalities in the exposure of infants to CPS investigation. AIAN infant risks of investigation are highest in Alaska. In 2014 - 2018, about `r temp %>% filter(state=="AK", race_ethn=="AIAN") %>% select(q) %>% mutate(q = round(q * 100, 1))` percent of AIAN infants had a screened-in CPS report. More than 10 percent of AIAN infants experienced an investigation in 3 other states: Minnesota, Oklahoma, and Montana. White children in Southern states like Mississippi, West Virginia, Florida, and Kentucky are typically at  higher levels of risk of investigation at all ages that are AIAN children, whose risk levels are typically quite low. In The Great Plains and Upper Midwest states, AIAN children typically have much higher investigation risk than do white children. Inequalities are pronounced in Wisconsin, Minnesota, North and South Dakota, Nebraska, and Oklahoma. Other than Alaska, states in the West typically have similar investigation rates for AIAN and white children.
 
 ```{r nat-inv-age, fig.cap = "Age specific risk of experiencing first CPS investigation by state, 2014 - 2018 risk levels"}
 ggplot(investigation_tables %>% 
@@ -367,7 +397,21 @@ ggplot(investigation_tables %>%
 
 ```
 
-There are also dramatic differences in risk of experiencing foster care across states. Figure \@ref(fig:nat-fc-age) shows the distribution of age-specific risks of first foster care entries for Native and white children by US state at 2014 - 2018 levels of risk. DESCRIBE FINDINGS
+
+```{r}
+### for state infant comparisons
+temp<-fc_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+  filter(age==0, race_ethn=="AIAN") %>% 
+  arrange(desc(q)) %>% 
+  ungroup() %>% 
+  mutate(q = round(q* 100,1))
+```
+
+In Minnesota, at 2014 - 2018 levels of risk, 9.7 percent of AIAN children could be expected to be removed from their families and placed into foster care before their first birthday. This is the highest level of risk in the country for infants of any racial or ethnic group (CITE YI EDWARDS WILDEMAN WORKING PAPER). AIAN infants are also at exceptionally high risk of foster care placement in Montana, Alaska, South Dakota, North Dakota, Oklahoma, Washington, Oregon, Nebraska, and Wisconsin. At 2014 - 2018 risk levels, more than 3 percent of all AIAN infants would be placed into foster care. White children face a 3 percent risk of foster care before their first birthday in only one state: West Virginia. Unlike with investigation, where white children in some Southern states experienced levels of extreme risk similar to risk levels experienced by AIAN children in Plains and Midwestern states, Native risk of foster care in high-risk states is categorically different from white risk in any state. 
+
+Nationally, white infants experienced about a 1.1 percent risk of foster care entry before their first birthday. Teenagers are typically at relatively low-risk of entering foster care for the first time, but in Minnesota, AIAN 16 year olds face a 1.4 percent risk of a first foster care entry, higher than the national risk faced by white infants. Risk for 16 year old AIAN children is also higher than white infant risk in North Dakota. 
 
 ```{r nat-fc-age, fig.cap = "Age specific probability of entering foster care, 2014 - 2018 risk levels"}
 ggplot(fc_tables %>% 
@@ -389,13 +433,69 @@ ggplot(fc_tables %>%
   scale_color_brewer(palette = "Dark2")
 ```
 
-THEN HIGH RISK STATES FOR EACH OUTCOME FOR AGESPEC
+In states where Native children are at high risk of investigation, they are typically also at higher risk of substantiation. Figure \@ref(fig:sub-high) shows the age-specific risk of a first substantiated maltreatment investigation for the states with the six highest levels of risk for AIAN infants: Alaska, Iowa, Massachusetts, Minnesota, Montana, and Oklahoma. In Alaska, Minnesota, and Oklahoma, about 6 percent of AIAN infants experience an investigation at 2014 - 2018 risk levels. About 5 percent of AIAN children experience a substantiated case before their first birthday in Massachusetts, Iowa, and Montana. AIAN children are at consistently higher risk of substantiation over the life course in each of these states except Massachusetts, where white children's risk is similar to AIAN children's risk after infancy. 
 
-ADD PLOTS HERE
+```{r sub-high, fig.cap = "Age-specific probability of agency-confirmed maltreatment case in high-risk states, 2014 - 2018 risk levels"}
+sub_high <- subst_tables %>% 
+  filter(age==0, .imp==1) %>% 
+  filter(race_ethn=="AIAN") %>% 
+  arrange(desc(q)) %>% 
+  ungroup() %>% 
+  slice(1:6)
 
-## Lifetime event risks and inequalities in lifetime risk
+ggplot(subst_tables %>% 
+         filter(state %in% sub_high$state) %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)),
+       aes(x = age, y = q, ymin = qmin, ymax = qmax,
+           color = race_ethn, fill = race_ethn)) + 
+  geom_ribbon(alpha = 0.5, color = NA) + 
+  geom_line() + 
+  labs(color = "", fill = "") + 
+  facet_wrap(~state)+
+  labs(x = "Age", y = "Proportion of children") + 
+  # theme(strip.text.x = element_text(size = 7),
+  #       axis.text.x = element_text(size = 6),
+  #       axis.text.y = element_text(size = 6)) + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")
+```
 
-Figure \@ref(fig:cumul-map) displays the AIAN childrens' risk of ever experiencing each included child welfare system event by their age 18 at 2014 - 2018 levels of risk. DESCRIBE FINDINGS HERE
+AIAN children are at higher risk nationally of experiencing the full termination of parental rights while in foster care than are children from any other racial or ethnic group (CITE WILDEMAN EDWARDS WAKEFIELD). Like other outcomes, risk is at its peak for infants. Figure \@ref(fig:tpr-high) shows the age-specific probability of termination for Native and white children in the six states with the highest risk of termination for native infants. Risk for infants is highest in Minnesota. About 1.8 percent of AIAN children would experience full termination of parental rights before their first birthday at 2014 - 2018 levels of risk. Risk for infants is also at or above one percent in Alaska, Iowa, Montana, North Dakota, and Oklahoma. 
+
+```{r tpr-high, fig.cap = "Age-specific probability of full termination of parental rights, 2014 - 2018 risk levels"}
+tpr_high <- tpr_tables %>% 
+  filter(age==0, .imp==1) %>% 
+  filter(race_ethn=="AIAN") %>% 
+  arrange(desc(q)) %>% 
+  ungroup() %>% 
+  slice(1:6)
+
+ggplot(tpr_tables %>% 
+         filter(state %in% tpr_high$state) %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)),
+       aes(x = age, y = q, ymin = qmin, ymax = qmax,
+           color = race_ethn, fill = race_ethn)) + 
+  geom_ribbon(alpha = 0.5, color = NA) + 
+  geom_line() + 
+  labs(color = "", fill = "") + 
+  facet_wrap(~state)+
+  labs(x = "Age", y = "Proportion of children") + 
+  # theme(strip.text.x = element_text(size = 7),
+  #       axis.text.x = element_text(size = 6),
+  #       axis.text.y = element_text(size = 6)) + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")
+```
+
+While there is a very clear relationship between the risk of experiencing child welfare system events and age -- infants are at much greater risk than other children, then risk tpyically declines slowly with age -- there is tremendous difference in the frequency of these events across places, and clear regional patterns in differences in risk between Native and white children. 
+
+### Lifetime event risks and inequalities in lifetime risk
+
+Next, we provide a summary of lifetime incidence of each child welfare event for Native and white children across US states. These cumulative risks simulate the total exposure of the population of children to a first event by applying age-specific risks and mortality risks (computed from the observed data) to a hypothetical cohort of 100,000 children in each state. They can be interpreted as 'lifetime' risks of child welfare system event incidence for each group.
+
+Figure \@ref(fig:cumul-map) displays AIAN risk of ever experiencing each child welfare system event by age 18 at 2014 - 2018 levels of risk. **START HERE**
 
 ```{r cumul-map, fig.cap = "Cumulative risk of child welfare system event for AIAN children by age 18 at 2014 - 2018 risk levels"}
 
@@ -598,9 +698,9 @@ ggplot(us_map,
 
 SUMMARY GRAF ON MARGINAL PROBABILITIES (AGE-SPEC AND CUMULATIVE)
 
-\newpage
 
-# Findings: conditional probability of subsequent child welfare events
+
+### Conditional probability of subsequent child welfare events
 
 Table \@ref(tab:mn-demo) show some cool things. EXPLAIN WHAT THESE MEASURE AND HOW THEY ARE COMPUTING
 
@@ -792,7 +892,7 @@ ggplot(non_icwa_cond_fc %>%
   labs(x = "Age", y = "Proportion") 
 ```
 
-\newpage
+
 
 # Discussion
 
