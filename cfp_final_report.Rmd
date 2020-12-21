@@ -39,12 +39,6 @@ load("./cfp_final_report.RData")
 
 clear statement on ongoing crisis of native family separation. aim of report is to 1) evaluate magnitude of change since ICWA, 2) ID geographic variation in inequality, 3) ID sites and places where inequality is accelerated
 
-# lit review
-
-1. historical importance of family separation
-2. ICWA and policy
-3. prior empirics on AIAN inequality
-
 # Data
 
 This study relies on a number of data sources. First, we compile and digitize statistics collected by the Association for American Indian Affairs during the late 1960s and early to mid 1970s in an effort to document the breadth and depth of the Indian family separation crisis. To capture the contemporary exposure of AIAN children to the child welfare system, we rely on federal data systems collected by the US Children's Bureau. We use the 2014 - 2018 National Child Abuse and Neglect Data System (NCANDS) child files (CITE), the 2014 - 2018 Adoption and Foster Care Analysis and Reporting System (AFCARS) foster care files (CITE) and the 2010 - 2018 AFCARS adoption files (CITE). We use two data sources for contemporary population estimates: the US Census Bureau's Population Estimates Program (PEP) (CITE), and the National Institute of Healths' SEER population estimates (CITE).
@@ -818,9 +812,9 @@ ggplot(ncands_sub_inv_tab %>%
 ```
 
 
-Figure \@ref(fig:fc-inv) shows the age specific probability of entering foster care, conditional on experiencing a CPS investigation. American Indian and Alaska Native infants in California, Minnesota, Hawaii, Idaho, Oregon, and Montana all have a greater than 40 percent chance of entering foster care if they experience a child welfare investigation, at 2014 - 2018 risk levels. 
+Figure \@ref(fig:fc-inv) shows the age specific probability of entering foster care, conditional on experiencing a CPS investigation. American Indian and Alaska Native infants in California, Minnesota, Hawaii, Idaho, Oregon, and Montana all have a greater than 40 percent chance of entering foster care if they experience a child welfare investigation, at 2014 - 2018 risk levels. Figure \@ref(fig:fc-sub) shows the age specific probability of entering foster care, conditional on experiencing an agency confirmed maltreatment investigation. In Oregon, California, Missouri, Montana, New Hampshire, and Washington, more than 80 percent of all AIAN infants with substantiated cases will be placed into foster care at 2014 - 2018 levels of risk. 
 
-Figure \@ref(fig:fc-sub) shows the age specific probability of entering foster care, conditional on experiencing an agency confirmed maltreatment investigation. In Oregon, California, Missouri, Montana, New Hampshire, and Washington, more than 80 percent of all AIAN infants with substantiated cases will be placed into foster care at 2014 - 2018 levels of risk. White infants do not experience a conditional risk of foster care this high in any state. 
+When interpreting Figures \@ref(fig:sub-inv) \@ref(fig:fc-inv) \@ref(fig:fc-sub) jointly, along with Figure \@ref(fig:nat-inv-age), a clear pattern emerges. Much of the inequality experienced by AIAN children emerges once a child welfare system begins processing a case. With certain exceptions (Alaska, in particular), inequalities typically emerge post-investigation. Once AIAN children come into contact with child welfare systems, they are often at much higher risk of substantiation that their peers, and much more likely to be placed into foster care than their peers in both substantiated and unsubstantiated cases. The unequal treatment of AIAN children in the child welfare system is dramatically accelerated at the at the point of the decision to place a child into foster care.   
 
 ```{r fc-inv, fig.cap = "Probability of foster care, conditional on investigation, 2014 - 2018 levels of risk"}
 fc_cond_inv_tabs<-fc_post_inv_tables %>%
@@ -852,8 +846,6 @@ ggplot(fc_cond_inv_tabs %>%
   theme(axis.text.y = element_text(size = 5),
         axis.text.x = element_text(size = 5))
 ```
-
-
 
 ```{r fc-sub, fig.cap = "Probability of foster care, conditional on substantiation, 2014 - 2018 levels of risk"}
 fc_cond_sub_tabs<-fc_sub_tables %>%
@@ -889,7 +881,7 @@ ggplot(fc_cond_sub_tabs %>%
   coord_cartesian(ylim = c(0,1))
 ```
 
-
+Once a decision has been made to place a Native child into foster care, the Indian Child Welfare Act specifies a preference for placements with kin, with members of the child's tribe, or with another native family. Non-native and non-kin foster families are intended to be a last resort, when preferred placement settings are unavailable. Figure \@ref(fig:non-icwa) shows the proportion of AIAN children in foster care who were ever placed into a non-kin non-native foster setting during their time in foster care. Infants have the highest likelihood of being placed with kin or with a native family. However, if 41 US States, we estimate that more than 50 percent of AIAN infants are placed in a non-native non-kin foster setting. Maryland, New Hampshire, Connecticut, Pennsylvania, North Carolina, and Florida have the highest rate of ICWA preferred placements for infants, ranging between 54 and 61 percent of infants placed with either kin or an AIAN foster family. In Georgia, South Carolina, and Kentucky, more than 80 percent of AIAN infants were placed with a non-kin non-Native foster caretaker. States with the greatest frequency of AIAN foster care also routinely place AIAN children with non-kin non-AIAN caretakers. In South Dakota, 70 percent of infants are placed in non-kin non-Native settings, In Washington and North Dakota, 65 percent of AIAN infants are placed in non-kin non-AIAN settings. In Oklahoma, Minnesota, Wisconsin, and Montana, more than half of all AIAN infants placed in foster care are placed with non-kin non-AIAN caretakers. The likelihood that an AIAN child weill be placed with a family member or other Native foster caretaker typically decreases with age. There is generally a very small chance that an AIAN teenager placed into foster care will be place with kin or with an AIAN foster family.
 
 ```{r non-icwa, fig.cap = "Probability AIAN children in foster care ever placed in non-kin, non-native foster setting, 2014 - 2018 levels of risk"}
 non_icwa_cond_fc<-non_icwa_tables %>%
