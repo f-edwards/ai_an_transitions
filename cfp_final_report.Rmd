@@ -346,7 +346,9 @@ ggplot(plot_dat,
   labs(x = "Age", y = "Probability") + 
   scale_fill_brewer(palette = "Dark2")+
   scale_color_brewer(palette = "Dark2") + 
-  facet_wrap(~var)
+  facet_wrap(~var) 
+
+ggsave("./vis/cjlr/fig2.png")
 
 ```
 

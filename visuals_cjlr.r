@@ -23,7 +23,9 @@ theme_set(theme_bw())
 # 
 # save.image("./cjlr.RData")
 
-load("./cjlr.RData")
+### use data from cfp final report, update cjlr.RData later
+load("./cfp_final_report.RData")
+
 
 ####################################################################################
 ############## ICWA figures
@@ -311,7 +313,7 @@ ggplot(plot_dat,
 map_dat<-investigation_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 ### xwalk state maps onto abbreviations
 us_map<-us_map()
@@ -339,7 +341,7 @@ inv_map<-ggplot(us_map %>%
 map_dat<-subst_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 us_map<-us_map()
 
@@ -364,7 +366,7 @@ sub_map<-ggplot(us_map %>%
 map_dat<-fc_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 us_map<-us_map()
 
@@ -389,7 +391,7 @@ fc_map<-ggplot(us_map %>%
 map_dat<-tpr_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
-  summarize(c = mean(c_c)) 
+  summarize(c = mean(c)) 
 
 us_map<-us_map()
 
@@ -457,13 +459,13 @@ map_dat<-investigation_tables_c %>%
 map_dat_wht<-map_dat %>% 
   ungroup() %>% 
   filter(race_ethn == "White") %>% 
-  rename(c_white = c_c) %>% 
+  rename(c_white = c) %>% 
   select(-race_ethn, -c, -race_ethn)
 
 map_dat<-map_dat %>% 
   filter(race_ethn=="AIAN") %>% 
   left_join(map_dat_wht) %>% 
-  mutate(disp = c_c / c_white) 
+  mutate(disp = c / c_white) 
 
 ### slice into quantiles
 ### xwalk state maps onto abbreviations
