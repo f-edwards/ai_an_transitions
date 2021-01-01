@@ -454,13 +454,15 @@ map_dat<-investigation_tables_c %>%
               filter(c == min(c)) %>% 
               mutate(var = "TPR")) %>% 
   select(-.imp) %>% 
-  distinct()
+  distinct() %>% 
+  ungroup() %>% 
+  complete(state, race_ethn, var)
 
 map_dat_wht<-map_dat %>% 
   ungroup() %>% 
   filter(race_ethn == "White") %>% 
   rename(c_white = c) %>% 
-  select(-race_ethn, -c, -race_ethn)
+  select(-race_ethn)
 
 map_dat<-map_dat %>% 
   filter(race_ethn=="AIAN") %>% 
@@ -504,7 +506,6 @@ us_map<-us_map %>%
                                         "3-4",
                                         "4+")))
 
-
 ggplot(us_map,
        aes(x = x, y = y, group = group,
            fill = rate_ratio)) + 
@@ -512,6 +513,6 @@ ggplot(us_map,
   coord_fixed() +
   facet_wrap(~var) + 
   theme_void() + 
-  scale_fill_brewer(palette = "Purples") +
-  labs(fill = "AIAN / White\nRate Ratio") + 
+  scale_fill_brewer(palette = "Purples", na.value = "grey45") +
+  labs(fill = "AIAN / White\nRate Ratio") +
   ggsave("./vis/cjlr/5.png", width = 8, height = 4)
