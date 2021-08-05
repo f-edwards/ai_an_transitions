@@ -30,8 +30,10 @@ ncands<-read_csv("./data/ncands_imputed.csv")
 ncands<-ncands %>% 
   filter(.imp==1)
 
-ncands_xwalk1<-read_csv("./data/ncands_xwalk.csv",
-                       col_types = cols(stfcid = "c"))
+ncands_xwalk<-read_csv("./data/ncands_xwalk.csv",
+                       col_types = cols(stfcid = "c")) %>%
+  mutate(st_id = paste(staterr, chid, sep = "")) %>% 
+  filter(!duplicated(st_id))
   
 library(maps)
 data(state.fips)
@@ -43,7 +45,7 @@ state.fips<-state.fips %>%
 
 ### attach stfcid
 ncands<-ncands %>%
-  left_join(ncands_xwalk)
+  right_join(ncands_xwalk)
 
 ### get needed first events
 
