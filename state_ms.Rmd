@@ -4,7 +4,7 @@ author: "Frank Edwards and Theresa Rocha Beardall"
 bibliography: "lib.bib"
 link-citations: true
 #csl: "vancouver-brackets-no-et-al.csl"
-abstract: "Following a long history of forced assimilation through family separation, American Indian and Alaska Native children continue to be separated from their families by state child welfare agencies at exceptionally high rates. This study provides insights into the geographies and institutional sites where inequalities emerge. We find that risks of child welfare system contact are highest for AIAN infants, and that risk is highly variable across states. Our estimates show that in high risk states at 2014 - 2018 levels of risk, more than half of AIAN children will ever be investigated by a child welfare agency, more than one in five will experience a substantiated maltreatment case, and more than one in five will ever enter foster care. We further find that child welfare agency case processing exacerbates inequality. AIAN children are more likely than white children to enter foster care, conditional on experiencing a substantiated maltreatment case, than are white children. These exceptionally high levels of risk indicate that the crisis of Indian family separation is ongoing. For AIAN children in states like Minnesota, Alaska, South Dakota, North Dakota, and Oklahoma, contact with the child welfare system is a routine part of growing up."
+abstract: "Following a long history of forced assimilation through family separation, American Indian and Alaska Native children continue to be separated from their families by state child welfare agencies at exceptionally high rates. This study provides insights into the geographies and institutional sites where inequalities emerge. We find that risks of child welfare system contact are highest for AIAN infants, and that risk is highly variable across states. These exceptionally high levels of risk indicate that the crisis of Indian family separation is ongoing. For AIAN children in states like Minnesota, Alaska, South Dakota, North Dakota, and Oklahoma, contact with the child welfare system is a routine part of growing up."
 output: bookdown::pdf_document2
 # output: word_document
 toc: false
@@ -140,6 +140,8 @@ ggplot(plot_dat,
   scale_fill_brewer(palette = "Dark2")+
   scale_color_brewer(palette = "Dark2") + 
   facet_wrap(~var) 
+
+
 
 ```
 
