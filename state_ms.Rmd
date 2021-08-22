@@ -141,8 +141,6 @@ ggplot(plot_dat,
   scale_color_brewer(palette = "Dark2") + 
   facet_wrap(~var) 
 
-ggsave("./vis/cjlr/fig2.png")
-
 ```
 
 Across all outcomes, and for both Native and white children, infants are at highest risk of child welfare system contact. About `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Investigation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of Native infants experience a CPS investigation nationally, and about `r plot_dat %>% filter(age==0, race_ethn=="White", var=="Investigation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of white infants experience a CPS investigation. About `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Substantiation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of AIAN children experience an agency confirmed maltreatment case before their first birthday, compared with about `r plot_dat %>% filter(age==0, race_ethn=="White", var=="Substantiation") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of white children. About `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Foster Care") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of AIAN children are removed from their families and placed into foster care before their first birthday, compared to about `r plot_dat %>% filter(age==0, race_ethn=="AIAN", var=="Termination") %>% select(q) %>% mutate(q = round(q*100, 1))` percent of white children. Risk of a first event declines steadily with age for both groups. 
