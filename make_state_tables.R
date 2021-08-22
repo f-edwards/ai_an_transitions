@@ -1,3 +1,9 @@
+####### REVISION NOTES
+####### REWORK FOR NEW FIRST EVENT FILE
+####### RERUN STATE AND NATL TABLES
+####### UPDATE CJLR NUMBERS, UPDATE REPORT NUMBERS
+####### UPDATE REPORT
+
 ### make state tables
 
 source("lifetable.r")
@@ -81,9 +87,8 @@ format_data<-function(dat){
     left_join(pop) 
 }
 
-ncands_inv<-read_csv("~/Projects/cps_lifetables/data/state_first_inv.csv") %>%
-  rename(year = subyr,
-         var = first_inv,
+ncands_inv<-read_csv("~/Projects/ndacan_processing/data/ncands_first_event_state.csv") %>%
+  rename(var = first_inv,
          state = staterr) %>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%
@@ -91,9 +96,8 @@ ncands_inv<-read_csv("~/Projects/cps_lifetables/data/state_first_inv.csv") %>%
             pop = sum(pop)) %>%
   ungroup() 
 
-ncands_sub<-read_csv("~/Projects/cps_lifetables/data/state_first_victim_out.csv")%>%
-  rename(year = subyr,
-         var = first_victim,
+ncands_sub<-read_csv("~/Projects/ndacan_processing/data/ncands_first_event_state.csv")%>%
+  rename(var = first_victim,
          state = staterr) %>%
   format_data() %>%
   group_by(.imp, age, race_ethn, state) %>%

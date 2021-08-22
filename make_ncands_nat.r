@@ -4,31 +4,10 @@ library(lubridate)
 
 setwd("~/Projects/ai_an_transitions/")
 
-pop<-read_fwf("./data/us.1990_2017.singleages.adjusted.txt",
-              fwf_widths(c(4, 2, 2, 3, 2, 1, 1, 1, 2, 8),
-                         c("year", "state", "st_fips",
-                           "cnty_fips", "reg", "race",
-                           "hisp", "sex", "age", "pop")))
-pop<-pop%>%
-  mutate(pop = as.integer(pop))%>%
-  mutate(race_ethn =
-           case_when(
-             race==1 & hisp ==0 ~ "White",
-             race==2 ~ "Black",
-             race==3 ~ "AI/AN",
-             race==4 ~ "Asian/PI",
-             hisp==1 ~ "Hispanic")) %>%
-  mutate(age = as.integer(age)) %>%
-  filter(year>=2000)
-
-pop<-pop %>% 
-  group_by(year, age, race_ethn) %>% 
-  summarise(pop = sum(pop))
-
-ncands<-read_csv("./data/ncands_imputed.csv")
-
-ncands<-ncands %>% 
-  filter(.imp==1)
+# ncands<-read_csv("./data/ncands_imputed.csv")
+# 
+# ncands<-ncands %>% 
+#   filter(.imp==1)
 
 ncands_xwalk<-read_csv("./data/ncands_xwalk.csv",
                        col_types = cols(stfcid = "c")) %>%
