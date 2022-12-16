@@ -59,7 +59,8 @@ icwa_delta<-icwa_fc %>%
   bind_rows(afcars_caseload %>% 
               select(state, period, race_ethn, fc, adopted)) %>% 
   filter(state%in%icwa_fc$state) %>% 
-  mutate(boarding = ifelse(is.na(boarding), 0, boarding))
+  mutate(boarding = ifelse(is.na(boarding), 0, boarding)) %>% 
+  filter(state!="MS")
 
 ### make comparable national totals
 ### can't compare per cap rates
@@ -112,91 +113,38 @@ icwa_nat_na<-icwa_delta %>%
 ### change since ICWA
 ### step through figure
 
-### start with table
-icwa_delta_p <- icwa_delta %>% 
-  filter(state %in% c("AK", "MT", "MN", "OK", "ND")) %>% 
-  mutate(race_ethn = 
-           ifelse(race_ethn=="other",
-                  "Non-AIAN",
-                  race_ethn))
+
 
 ggplot(icwa_delta %>% 
-         filter(period == 1976) %>% 
-         mutate(race_ethn = 
-                  ifelse(race_ethn=="other",
-                         "Non-AIAN",
-                         race_ethn)),
-       aes(y = race_ethn, x = fc, fill = period)) + 
+         filter(period == 1976,
+                race_ethn == "AIAN"),
+       aes(y = state, x = fc, fill = period)) + 
+  geom_col(position = position_dodge2(reverse = T)) + 
+  scale_fill_brewer(palette = "Dark2") + 
+  labs(y = "",
+       x = "Children in foster care",
+       fill = "")  
+  ggsave("./vis/slides_1.png", width = 8, height = 4)
+
+ggplot(icwa_delta %>% 
+         filter(race_ethn == "AIAN"),
+       aes(y = state, x = fc, fill = period)) + 
+  geom_col(position = position_dodge2(reverse = T)) + 
+  scale_fill_brewer(palette = "Dark2") + 
+  labs(y = "",
+       x = "Children in foster care",
+       fill = "")  
+  ggsave("./vis/slides_2.png", width = 8, height = 4)
+
+ggplot(icwa_delta,
+      aes(y = state, x = fc, fill = period)) + 
   geom_col(position = position_dodge2(reverse = T)) + 
   scale_fill_brewer(palette = "Dark2") + 
   labs(y = "",
        x = "Children in foster care",
        fill = "")  + 
-  ggsave("./vis/anita_icwa_1.png", width = 8, height = 4)
-
-ggplot(icwa_delta %>% 
-         filter(state == "AK") %>% 
-         mutate(race_ethn = 
-                  ifelse(race_ethn=="other",
-                         "Non-AIAN",
-                         race_ethn)),
-       aes(y = race_ethn, x = fc, fill = period)) + 
-  geom_col(position = position_dodge2(reverse = T)) + 
-  scale_fill_brewer(palette = "Dark2") + 
-  labs(y = "",
-       x = "Children in foster care",
-       fill = "")  + 
-  ggsave("./vis/ak_icwa_2.png", width = 8, height = 4)
-
-ggplot(icwa_delta %>% 
-         filter(state == "AK") %>% 
-         mutate(race_ethn = 
-                  ifelse(race_ethn=="other",
-                         "Non-AIAN",
-                         race_ethn)),
-       aes(y = race_ethn, x = adopted, fill = period)) + 
-  geom_col(position = position_dodge2(reverse = T)) + 
-  scale_fill_brewer(palette = "Dark2") + 
-  labs(y = "",
-       x = "Children in Adoptions",
-       fill = "") + 
-  ggsave("./vis/ak_icwa_3.png", width = 8, height = 4)
-
-ggplot(icwa_delta %>% 
-         filter(state == "AK") %>% 
-         mutate(race_ethn = 
-                  ifelse(race_ethn=="other",
-                         "Non-AIAN",
-                         race_ethn)),
-       aes(y = race_ethn, x = fc + adopted + boarding, fill = period)) + 
-  geom_col(position = position_dodge2(reverse = T)) + 
-  scale_fill_brewer(palette = "Dark2") + 
-  labs(y = "",
-       x = "Children in foster care, adoption, or BIA boarding school",
-       fill = "") + 
-  ggsave("./vis/ak_icwa_4.png", width = 8, height = 4)
-
-icwa_delta_pct <- icwa_delta_pct %>% 
-  mutate(value = ifelse(state%in%index$state & name == "Adoption",
-                        NA,
-                        value))
-
-ggplot(icwa_delta_pct %>% 
-         filter(state=="AK") %>% 
-         mutate(race_ethn =
-                  ifelse(race_ethn == "AIAN",
-                         race_ethn,
-                         "Non-AIAN")),
-       aes(x = value,
-           y = race_ethn,
-           fill = name)) + 
-  geom_col(position = position_dodge2(reverse = T)) + 
-  labs(y = "") +
-  geom_vline(xintercept = 0, lty = 2) +
-  scale_fill_brewer(palette = "Dark2") + 
-  labs(fill = "", 
-       x = "Percent increase, 1976 to 2019")+ 
-  ggsave("./vis/ak_icwa_5.png", width = 8, height = 4)
+  facet_wrap(~race_ethn, ncol = 2, scales = "free") 
+  ggsave("./vis/slides_3.png", width = 8, height = 4)
 
 ##### age specs
 
@@ -236,27 +184,60 @@ nat_plot_dat<-inv_nat_tab %>%
                                  "Foster Care",
                                  "Termination")))
 
+### fig 4, nat investigation step through
 
-ggplot(investigation_tables %>% 
-         filter(state=="AK") %>% 
-         group_by(state, race_ethn, age) %>% 
-         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
-         ungroup() %>% 
-         mutate(state = "Alaska"),
+ggplot(nat_plot_dat %>% 
+         filter(var=="Investigation",
+                race_ethn=="AIAN"),
        aes(x = age, y = q, color = race_ethn)) + 
   geom_line() + 
   labs(color = "", fill = "", lty = "") + 
   labs(x = "Age", y = "Probability")+
   scale_fill_brewer(palette = "Dark2")+
-  scale_color_brewer(palette = "Dark2") + 
-  ggsave("./vis/ak_inv_5.png", width = 8, height = 4)
+  scale_color_brewer(palette = "Dark2")  
+  ggsave("./vis/slides_4.png", width = 8, height = 4)
+
+ggplot(nat_plot_dat %>% 
+         filter(var=="Investigation"),
+       aes(x = age, y = q, color = race_ethn)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2")  
+  ggsave("./vis/slides_5.png", width = 8, height = 4)
+
+### fig 6 facet_geo for inv
 
 ggplot(investigation_tables %>% 
-         filter(state=="AK") %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup(),
+  aes(x = age, y = q, color = race_ethn,
+      ymin = qmin, ymax = qmax)) + 
+  geom_line() + 
+  geom_ribbon(aes(color = NULL, fill = race_ethn), alpha = 0.5)+
+  labs(color = "", fill = "", lty = "") + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_geo(~state) + 
+  theme_minimal() +
+  labs(x = "Age", y = "Probability") + 
+  theme(strip.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 4)) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") 
+  ggsave("./vis/slides_6.png", width = 8, height = 4)
+
+### SD compared to national
+ggplot(investigation_tables %>% 
+         filter(state=="MN") %>% 
          group_by(state, race_ethn, age) %>% 
          summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
          ungroup() %>% 
-         mutate(state = "Alaska") %>% 
+         mutate(state = "Minnesota") %>% 
          bind_rows(
            nat_plot_dat %>% 
              mutate(state = "National") %>% 
@@ -268,30 +249,10 @@ ggplot(investigation_tables %>%
   labs(color = "", fill = "", lty = "") + 
   labs(x = "Age", y = "Probability")+
   scale_fill_brewer(palette = "Dark2")+
-  scale_color_brewer(palette = "Dark2") + 
-  ggsave("./vis/ak_inv_6.png", width = 8, height = 4)
+  scale_color_brewer(palette = "Dark2") 
+  ggsave("./vis/slides_7.png", width = 8, height = 4)
 
-ggplot(fc_tables %>% 
-         filter(state=="AK") %>% 
-         group_by(state, race_ethn, age) %>% 
-         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
-         ungroup() %>% 
-         mutate(state = "Alaska") %>% 
-         bind_rows(
-           nat_plot_dat %>% 
-             mutate(state = "National") %>% 
-             filter(var=="Foster Care") %>% 
-             select(-var)
-         ),
-       aes(x = age, y = q, color = race_ethn, lty = state)) + 
-  geom_line() + 
-  labs(color = "", fill = "", lty = "") + 
-  labs(x = "Age", y = "Probability")+
-  scale_fill_brewer(palette = "Dark2")+
-  scale_color_brewer(palette = "Dark2") + 
-  ggsave("./vis/ak_fc_7.png", width = 8, height = 4)
-
-
+### investigation c map
 
 map_dat<-investigation_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
@@ -305,10 +266,7 @@ us_map<-us_map %>%
   left_join(map_dat %>% 
               rename(abbr = state)) 
 
-
-
-inv_map<-ggplot(us_map %>% 
-                  filter(!(is.na(var))),
+ggplot(us_map,
                 aes(x = x, y = y, group = group,
                     fill = c)) + 
   geom_polygon(color = "black") + 
@@ -319,48 +277,164 @@ inv_map<-ggplot(us_map %>%
   labs(fill = "Investigation") +
   guides(fill = guide_colourbar(title.position = "top",
                                 label.position = "bottom",
-                                title.hjust = 0.5))
+                                title.hjust = 0.5)) + 
+  ggsave("./vis/slides_8.png",  width = 8, height = 4)
 
+### substantiation
+
+ggplot(nat_plot_dat %>% 
+         filter(var=="Substantiation"),
+       aes(x = age, y = q, color = race_ethn)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") 
+  ggsave("./vis/slides_9.png", width = 8, height = 4)
+
+###  facet_geo for sub
+
+ggplot(subst_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup(),
+       aes(x = age, y = q, color = race_ethn,
+           ymin = qmin, ymax = qmax)) + 
+  geom_line() + 
+  geom_ribbon(aes(color = NULL, fill = race_ethn), alpha = 0.5)+
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_geo(~state) + 
+  theme_minimal() +
+  labs(x = "Age", y = "Probability") + 
+  theme(strip.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 4)) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) 
+  ggsave("./vis/slides_10.png", width = 8, height = 4)
+
+### SD compared to national
+ggplot(subst_tables %>% 
+         filter(state=="MN") %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup() %>% 
+         mutate(state = "Minnesota") %>% 
+         bind_rows(
+           nat_plot_dat %>% 
+             mutate(state = "National") %>% 
+             filter(var=="Substantiation") %>% 
+             select(-var)
+         ),
+       aes(x = age, y = q, color = race_ethn, lty = state)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  ggsave("./vis/slides_11.png", width = 8, height = 4)
+
+### cumulative map for sub
 map_dat<-subst_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
   summarize(c = mean(c)) 
 
+### xwalk state maps onto abbreviations
 us_map<-us_map()
 
 us_map<-us_map %>% 
   left_join(map_dat %>% 
               rename(abbr = state)) 
 
-sub_map<-ggplot(us_map %>% 
-                  filter(!(is.na(var))),
-                aes(x = x, y = y, group = group,
-                    fill = c)) + 
+ggplot(us_map,
+       aes(x = x, y = y, group = group,
+           fill = c)) + 
   geom_polygon(color = "black") + 
   coord_fixed() +
   theme_void() + 
   scale_fill_gradient2() +
   theme(legend.position = "bottom") +
-  labs(fill = "Substantation") +
+  labs(fill = "Substantiation") +
   guides(fill = guide_colourbar(title.position = "top",
                                 label.position = "bottom",
-                                title.hjust = 0.5))
+                                title.hjust = 0.5)) 
+  ggsave("./vis/slides_12.png",  width = 8, height = 4)
 
+### foster care
+
+ggplot(nat_plot_dat %>% 
+         filter(var=="Foster Care"),
+       aes(x = age, y = q, color = race_ethn)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  ggsave("./vis/slides_13.png", width = 8, height = 4)
+
+###  facet_geo for FC
+
+ggplot(fc_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup(),
+       aes(x = age, y = q, color = race_ethn,
+           ymin = qmin, ymax = qmax)) + 
+  geom_line() + 
+  geom_ribbon(aes(color = NULL, fill = race_ethn), alpha = 0.5)+
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_geo(~state) + 
+  theme_minimal() +
+  labs(x = "Age", y = "Probability") + 
+  theme(strip.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 4)) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
+    ggsave("./vis/slides_14.png", width = 8, height = 4)
+
+### SD compared to national
+ggplot(fc_tables %>% 
+         filter(state=="MN") %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup() %>% 
+         mutate(state = "Minnesota") %>% 
+         bind_rows(
+           nat_plot_dat %>% 
+             mutate(state = "National") %>% 
+             filter(var=="Foster Care") %>% 
+             select(-var)
+         ),
+       aes(x = age, y = q, color = race_ethn, lty = state)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") 
+  ggsave("./vis/slides_15.png", width = 8, height = 4)
+
+### cumulative map for fc
 map_dat<-fc_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
   summarize(c = mean(c)) 
 
+### xwalk state maps onto abbreviations
 us_map<-us_map()
 
 us_map<-us_map %>% 
   left_join(map_dat %>% 
               rename(abbr = state)) 
 
-fc_map<-ggplot(us_map %>% 
-                 filter(!(is.na(var))),
-               aes(x = x, y = y, group = group,
-                   fill = c)) + 
+ggplot(us_map,
+       aes(x = x, y = y, group = group,
+           fill = c)) + 
   geom_polygon(color = "black") + 
   coord_fixed() +
   theme_void() + 
@@ -369,23 +443,82 @@ fc_map<-ggplot(us_map %>%
   labs(fill = "Foster Care") +
   guides(fill = guide_colourbar(title.position = "top",
                                 label.position = "bottom",
-                                title.hjust = 0.5))
+                                title.hjust = 0.5)) 
+  ggsave("./vis/slides_16.png",  width = 8, height = 4)
 
+
+### tpr
+
+ggplot(nat_plot_dat %>% 
+         filter(var=="Termination"),
+       aes(x = age, y = q, color = race_ethn)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  ggsave("./vis/slides_17.png", width = 8, height = 4)
+
+###  facet_geo for FC
+
+ggplot(tpr_tables %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup(),
+       aes(x = age, y = q, color = race_ethn,
+           ymin = qmin, ymax = qmax)) + 
+  geom_line() + 
+  geom_ribbon(aes(color = NULL, fill = race_ethn), alpha = 0.5)+
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_geo(~state) + 
+  theme_minimal() +
+  labs(x = "Age", y = "Probability") + 
+  theme(strip.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 4)) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
+    ggsave("./vis/slides_18.png", width = 8, height = 4)
+
+### SD compared to national
+ggplot(tpr_tables %>% 
+         filter(state=="MN") %>% 
+         group_by(state, race_ethn, age) %>% 
+         summarise(qmax = max(q), qmin=min(q), q = mean(q)) %>% 
+         ungroup() %>% 
+         mutate(state = "Minnesota") %>% 
+         bind_rows(
+           nat_plot_dat %>% 
+             mutate(state = "National") %>% 
+             filter(var=="Termination") %>% 
+             select(-var)
+         ),
+       aes(x = age, y = q, color = race_ethn, lty = state)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") 
+  ggsave("./vis/slides_19.png", width = 8, height = 4)
+
+### cumulative map for fc
 map_dat<-tpr_tables_c %>% 
   filter(race_ethn=="AIAN") %>% 
   group_by(state) %>% 
   summarize(c = mean(c)) 
 
+### xwalk state maps onto abbreviations
 us_map<-us_map()
 
 us_map<-us_map %>% 
   left_join(map_dat %>% 
               rename(abbr = state)) 
 
-tpr_map<-ggplot(us_map %>% 
-                  filter(!(is.na(var))),
-                aes(x = x, y = y, group = group,
-                    fill = c)) + 
+ggplot(us_map,
+       aes(x = x, y = y, group = group,
+           fill = c)) + 
   geom_polygon(color = "black") + 
   coord_fixed() +
   theme_void() + 
@@ -394,13 +527,8 @@ tpr_map<-ggplot(us_map %>%
   labs(fill = "TPR") +
   guides(fill = guide_colourbar(title.position = "top",
                                 label.position = "bottom",
-                                title.hjust = 0.5))
-
-
-c_map<-grid.arrange(inv_map, sub_map,
-                    fc_map, tpr_map)
-
-ggsave("./vis/ak_map_8.png", c_map, width = 8, height = 4)
+                                title.hjust = 0.5)) 
+  ggsave("./vis/slides_20.png",  width = 8, height = 4)
 
 
 ####### CONDITIONALS
@@ -447,8 +575,12 @@ plot_dat<-bind_rows(ncands_sub_inv_tab,
                     fc_cond_inv_tabs,
                     fc_cond_sub_tabs)
 
+labs<-unique(plot_dat$var)
+
 ggplot(plot_dat %>% 
-         filter(state%in%c("AK", "AZ","MT","ND", "MN", "OK")) %>% 
+         filter(
+           state %in% c("SD", "ND", "MN", "NE"),
+           var == labs[1]) %>% 
          group_by(state, race_ethn, age, var) %>% 
          summarise(q = mean(value)) %>% 
          ungroup() %>% 
@@ -459,8 +591,42 @@ ggplot(plot_dat %>%
   labs(x = "Age", y = "Probability")+
   scale_fill_brewer(palette = "Dark2")+
   scale_color_brewer(palette = "Dark2") + 
-  facet_wrap(state~var, ncol = 3) + 
-  ggsave("./vis/ak_cond_9.png", width = 8, height = 4)
+  facet_wrap(~state, ncol = 4) 
+  ggsave("./vis/slides_21.png", width = 8, height = 4)
+
+ggplot(plot_dat %>% 
+         filter(
+           state %in% c("SD", "ND", "MN", "NE"),
+           var == labs[2]) %>% 
+         group_by(state, race_ethn, age, var) %>% 
+         summarise(q = mean(value)) %>% 
+         ungroup() %>% 
+         filter(q<=1),
+       aes(x = age, y = q, color = race_ethn)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_wrap(~state, ncol = 4) + 
+  ggsave("./vis/slides_22.png", width = 8, height = 4)
+
+ggplot(plot_dat %>% 
+         filter(
+           state %in% c("SD", "ND", "MN", "NE"),
+           var == labs[3]) %>% 
+         group_by(state, race_ethn, age, var) %>% 
+         summarise(q = mean(value)) %>% 
+         ungroup() %>% 
+         filter(q<=1),
+       aes(x = age, y = q, color = race_ethn)) + 
+  geom_line() + 
+  labs(color = "", fill = "", lty = "") + 
+  labs(x = "Age", y = "Probability")+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_color_brewer(palette = "Dark2") + 
+  facet_wrap(~state, ncol = 4) + 
+  ggsave("./vis/slides_23.png", width = 8, height = 4)
 
 non_icwa_cond_fc<-non_icwa_tables %>%
   rename(non_icwa = q) %>% 
@@ -472,7 +638,7 @@ non_icwa_cond_fc<-non_icwa_tables %>%
 
 ggplot(non_icwa_cond_fc %>% 
          filter(race_ethn=="AIAN",
-                state == "AK") %>% 
+                state == "SD") %>% 
          group_by(age, state) %>% 
          summarise(qmin = min(non_icwa_fc),
                    qmax = max(non_icwa_fc),
@@ -484,26 +650,25 @@ ggplot(non_icwa_cond_fc %>%
   geom_line() +
   geom_ribbon(alpha = 0.5, color = NA) + 
   labs(x = "Age", y = "Proportion") + 
-  ggsave("./vis/ak_non_icwa_10.png", width = 8, height = 4)
+  ggsave("./vis/slides_24.png", width = 8, height = 4)
 
 
-
-anita_cumulative_slide<-fc_tables_c %>% 
+cumulative_slide<-fc_tables_c %>% 
   filter(.imp==1,
-         state%in%c("AK", "AZ", "MN", "ND", "OK", "MT")) %>% 
+         state %in% c("SD", "ND", "MN", "NE")) %>% 
   mutate(outcome = "2. Foster care") %>% 
   bind_rows(investigation_tables_c %>% 
               filter(.imp==1,
-                     state%in%c("AK", "AZ", "MN", "ND", "OK", "MT")) %>% 
+                     state %in% c("SD", "ND", "MN", "NE")) %>% 
               mutate(outcome = "1. Investigation")) 
   
-ggplot(anita_cumulative_slide,
+ggplot(cumulative_slide,
        aes(x = c * 100, y = state, fill = race_ethn)) + 
   geom_col(position = position_dodge()) + 
   facet_wrap(~outcome) +
   scale_fill_brewer(palette = "Dark2") + 
   labs(x = "Percent of children",
        y = "",
-       fill = "") + 
-  ggsave("./vis/anita_cumulative_fig.png", width = 8, height = 4)
+       fill = "") 
+  ggsave("./vis/slides_25.png", width = 8, height = 4)
   
