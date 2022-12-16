@@ -101,63 +101,61 @@ rates<-totals_15_19 %>%
 
 st_levels<-rates %>% 
   arrange(var)
-
-plot_dat<-bind_rows(rates, counts) %>% 
+### remove counts, just use rates as var
+plot_dat<-rates %>% 
   mutate(state = factor(state, 
-                        levels = st_levels$state))
+                        levels = st_levels$state)) %>% 
+  select(-varname)
 
 ### add AAIA numbers to fig 1
 
 pre_icwa<-read_csv("./data/icwa_data.csv") %>% 
   left_join(data.frame(state = state.abb, State = state.name)) %>% 
-  mutate("FC" = fc_aian,
-         "FC+adopted" = fc_aian + adopted_aian) %>% 
-  select(state, pop_aian21, 'FC', 'FC+adopted') %>% 
-  pivot_longer(FC:'FC+adopted',
-               names_to = "var",
-               values_to = "n") %>% 
-  mutate(rate = n / pop_aian21 * 1e2) %>% 
-  select(-pop_aian21) %>% 
+  mutate("FC" = fc_aian) %>% 
+  mutate(var = FC / pop_aian21 * 1e2) %>% 
+  select(state, var) %>% 
   filter(state!="MS") 
 
 levels<-pre_icwa %>% 
-  filter(var=="FC") %>% 
-  arrange(rate) %>% 
+  arrange(var) %>% 
   select(state)
 
 pre_icwa<-pre_icwa %>% 
-  mutate(state = factor(state, levels = levels$state))
+  mutate(state = factor(state, levels = levels$state)) %>% 
+  mutate(varname = "AIAN children in foster care 1976")
 
 
 #### SET UP JOINT ICWA / CONTEMP DATA FIGURE HERE
-pre_icwa_long<-pre_icwa %>% 
-  rename(pre_icwa_varname = var) %>% 
-  pivot_longer(n:rate,
-               values_to = "pre_icwa_var",
-               names_to = "varname") %>% 
-  mutate(varname = case_when(
-    varname == "n"~ "2. Children in foster care (count)",
-    varname == "rate" ~ "1. Children in foster care (percent of population)"
-  ))
+# pre_icwa_long<-pre_icwa %>% 
+#   rename(pre_icwa_varname = var) %>% 
+#   pivot_longer(n:rate,
+#                values_to = "pre_icwa_var",
+#                names_to = "varname") %>% 
+#   mutate(varname = case_when(
+#     varname == "n"~ "2. Children in foster care (count)",
+#     varname == "rate" ~ "1. Children in foster care (percent of population)"
+#   ))
+# 
+#### For CYSR r/r, simplify figure, remove
+#### counts, remove adoption
 
+### color blind palettes
+cbPalette2 <- c("#000000", "#E69F00")
+cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 plot_dat<-plot_dat %>% 
-  left_join(pre_icwa_long)
+  mutate(varname = "AIAN children in foster care\n2015-2019 average") %>% 
+  bind_rows(pre_icwa) 
 
 ggplot(plot_dat %>% 
          filter(state!="HI"),
        aes(x = var, y = state)) + 
-  geom_point() + 
+  geom_point(aes(color = varname)) + 
   geom_linerange(aes(xmin = var - var_sd,
-                     xmax = var + var_sd)) + 
-  geom_point(aes(y = state, x = pre_icwa_var, color = pre_icwa_varname),
-             alpha = 0.7)+
-  scale_fill_brewer(palette = "Dark2", na.translate = F) + 
-  scale_color_brewer(palette = "Dark2", na.translate = F) +
-  labs(y = "", x = "AIAN children in foster care",
-       fill = "1976 level",
-       color = "1976 level") + 
-  facet_wrap(~varname, scales = "free_x") 
+                     xmax = var + var_sd)) +
+  scale_color_manual(values = cbPalette2) +
+  labs(y = "", x = "Percent of children",
+       color = "")
 
 ggsave("./vis/fig1.png",
        height = 8, width = 8)
