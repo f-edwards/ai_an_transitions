@@ -2,7 +2,7 @@ rm(list=ls()); gc()
 library(tidyverse)
 library(lubridate)
 
-pop<-read_fwf("~/data/us.1990_2019.singleages.adjusted.txt",
+pop<-read_fwf("~/Projects/data/us.1990_2020.singleages.adjusted.txt",
               fwf_widths(c(4, 2, 2, 3, 2, 1, 1, 1, 2, 8),
                          c("year", "state", "st_fips",
                            "cnty_fips", "reg", "race",

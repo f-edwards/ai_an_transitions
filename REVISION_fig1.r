@@ -159,3 +159,15 @@ ggplot(plot_dat %>%
 
 ggsave("./vis/fig1.png",
        height = 8, width = 8)
+
+# for text call out of contemp / historical comparisons
+
+t<-plot_dat %>% 
+  select(state, var, varname) %>% 
+  pivot_wider(names_from = varname, values_from = var)
+
+names(t)<-c("state", "contemp", "historic11/19al")
+
+t<-t %>% 
+  filter(!(is.na(historical))) %>% 
+  mutate(change = contemp / historical)
